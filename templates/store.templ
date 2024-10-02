@@ -1,0 +1,24 @@
+package templates
+
+import (
+"fmt"
+"go-store/types"
+)
+
+templ Store(products map[string]float64) {
+	<p>Your store markup goes here</p>
+	for product, price := range products {
+		<p>
+			You can loop over your products here, like so and print them out as such: { fmt.Sprintf("%s - %.2f", product,
+			price) }
+		</p>
+	}
+}
+
+templ PurchaseConfirmation(purchaseInformation types.PurchaseInfo) {
+<div>
+	<p>Your purchase confirmation markup would go here</p>
+	<p>You may access things from the <pre>types.PurchaseInfo</pre></p>
+	<p>It might look something like this: your total is { fmt.Sprintf("%.2f", purchaseInformation.total) }</p>
+</div>
+}
