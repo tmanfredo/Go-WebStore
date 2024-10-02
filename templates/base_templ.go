@@ -29,7 +29,7 @@ func Base() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><title>Go Webstore</title><link rel=\"stylesheet\" href=\"assets/styles/styles.css\"></head><body><h1>Hello!</h1><div class=\"container\"><p>This is the base template in the starter repo. You will eventually replace the content in this template with content of your own.</p><p>As you work through the module assignments, you'll be modifying this code. Remember, these modules are additive, so you'll need to keep up on the modules in sequential order.</p></div></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><title>Go Webstore</title><link rel=\"stylesheet\" href=\"assets/styles/styles.css\"></head><body><h1>Hello!</h1><div class=\"container\"><p>This is the rte base template in the starter repo. You will eventually replace the content in this template with content of your own.</p><p>As you work through the module assignments, you'll be modifying this code. Remember, these modules are additive, so you'll need to keep up on the modules in sequential order.</p></div></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
