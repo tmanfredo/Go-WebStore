@@ -14,8 +14,9 @@ import (
 
 func main() {
 	// TODO: Fill in your products here with name -> price as the key -> value pair.
-	// products := map[string]float64{
-	// }
+	products := map[string]float64{
+		"test" : 5.65,
+	}
 	e := echo.New()
 	e.Use(etag.Etag())
 
@@ -25,7 +26,7 @@ func main() {
 
 	// TODO: Render your base store page here
 	e.GET("/store", func(ctx echo.Context) error {
-		return Render(ctx, http.StatusOK, templates.Base())
+		return Render(ctx, http.StatusOK, templates.Base(templates.Store(products)))
 	})
 
 	// TODO: Handle the form submission and return the purchase confirmation view
@@ -35,7 +36,7 @@ func main() {
 		// 	// TODO: Maybe use this structure to pass the data to your purchase confirmation page
 		// 	// ...
 		// }
-		return Render(ctx, http.StatusOK, templates.Base())
+		return Render(ctx, http.StatusOK, templates.Base(templates.Store(products)))
 	})
 
 	e.Logger.Fatal(e.Start(":8000"))

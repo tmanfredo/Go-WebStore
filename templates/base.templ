@@ -1,22 +1,29 @@
 package templates
 
-templ Base() {
-	<!DOCTYPE html>
-	<html>
-	<head>
-		<title>GameHalt</title>
-		<link rel="stylesheet" href="assets/styles/styles.css">
-	</head>
-	<body>
-		@header()
-		//@content
-		@footer()
-	</body>
-	</html>
+templ Base(content templ.Component) {
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>GameHalt</title>
+	<link rel="stylesheet" href="assets/styles/styles.css">
+</head>
+
+<body>
+	@header()
+	@content
+	@footer()
+</body>
+
+</html>
 }
 
 templ header() {
-	<header>
-		<h1>Your Header Here</h1>
-	</header>
+<header>
+	<h1>GameHalt: The Pause Button for Your Wallet</h1>
+</header>
+<nav>
+	<a href="#" >Home</a>
+	<a href="#" >Store</a>
+</nav>
 }
