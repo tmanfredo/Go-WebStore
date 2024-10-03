@@ -16,6 +16,7 @@ func main() {
 	// TODO: Fill in your products here with name -> price as the key -> value pair.
 	products := map[string]float64{
 		"test" : 5.65,
+		"test2" : 7.89,
 	}
 	e := echo.New()
 	e.Use(etag.Etag())

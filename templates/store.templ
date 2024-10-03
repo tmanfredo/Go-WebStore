@@ -6,19 +6,41 @@ import (
 )
 
 templ Store(products map[string]float64) {
-	<p>Your store markup goes here</p>
+
+<form>
+	<label for="firstName">First Name:</label>
+	<input type="text"><br>
+	<label for="lastName">Last Name:</label>
+	<input type="text"><br>
+	<label for="email">Email:</label>
+	<input type="email"><br>
+</form>
+
+/* <select>
 	for product, price := range products {
-		<p>
-			You can loop over your products here, like so and print them out as such: { fmt.Sprintf("%s - %.2f", product,
-			price) }
-		</p>
+	{ $forprice := fmt.Sprintf("%f", $price) }
+	<option value={ product }>
+		{ $product }: ${ $forprice }
+	</option>
 	}
+</select> */
+
+	<select>
+    for product, price := range products {
+        <option value={ product }>
+            { product }: ${ fmt.Sprintf("%.2f", price) }
+        </option>
+    }
+	</select>
+
 }
 
 templ PurchaseConfirmation(purchaseInformation types.PurchaseInfo) {
 <div>
 	<p>Your purchase confirmation markup would go here</p>
-	<p>You may access things from the <pre>types.PurchaseInfo</pre></p>
+	<p>You may access things from the
+	<pre>types.PurchaseInfo</pre>
+	</p>
 	<p>It might look something like this: your total is { fmt.Sprintf("5"/*"%.2f", purchaseInformation.total*/) }</p>
 </div>
 }
