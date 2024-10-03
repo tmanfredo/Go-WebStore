@@ -6,33 +6,32 @@ import (
 )
 
 templ Store(products map[string]float64) {
+	<form>
+		<div id="info">
+			<p>Personal Info</p>
 
-<form>
-	<label for="firstName">First Name:</label>
-	<input type="text"><br>
-	<label for="lastName">Last Name:</label>
-	<input type="text"><br>
-	<label for="email">Email:</label>
-	<input type="email"><br>
-</form>
+			<label for="firstName">First Name:</label>
+			<input type="text"><br>
+			<label for="lastName">Last Name:</label>
+			<input type="text"><br>
+			<label for="email">Email:</label>
+			<input type="email"><br>
+			<input type="submit">
 
-/* <select>
-	for product, price := range products {
-	{ $forprice := fmt.Sprintf("%f", $price) }
-	<option value={ product }>
-		{ $product }: ${ $forprice }
-	</option>
-	}
-</select> */
+		</div>
+		<div id="product">
+			<p>Product Info</p>
+			<select>
+				<option value="Choose a Product" style="font-weight:bold">Choose a Product</option>
+				for product, price := range products {
+				<option value={ product }>
+					{ product }: ${ fmt.Sprintf("%.2f", price) }
+				</option>
+				}
+			</select>
 
-	<select>
-    for product, price := range products {
-        <option value={ product }>
-            { product }: ${ fmt.Sprintf("%.2f", price) }
-        </option>
-    }
-	</select>
-
+		</div>
+	</form>
 }
 
 templ PurchaseConfirmation(purchaseInformation types.PurchaseInfo) {

@@ -15,8 +15,9 @@ import (
 func main() {
 	// TODO: Fill in your products here with name -> price as the key -> value pair.
 	products := map[string]float64{
-		"test" : 5.65,
-		"test2" : 7.89,
+		"Super Mario Odyssey" : 39.99,
+		"Undertale" : 9.99,
+		"Mario Kart 8 Deluxe" : 39.99,
 	}
 	e := echo.New()
 	e.Use(etag.Etag())

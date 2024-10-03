@@ -33,9 +33,38 @@ a:visited {
 	color: black;
 }
 
+#info {
+	border: solid 1px black;
+	width: fit-content;
+	padding: 1em;
+	text-align: right;
+
+	margin-bottom: 1em;
+}
+
+#info p {
+	text-align: center;
+}
+
+input {
+	margin: 0.2em;
+}
+
 select {
-	margin: 0.5em;
+	margin: 0.6em;
 	font-size: 1em;
+	padding: 0.5em;
+}
+
+#product {
+	border: solid 1px black;
+	width: fit-content;
+	padding: 1em;
+	text-align: right;
+}
+
+#product p {
+	text-align: center;
 }
 
 .container {
