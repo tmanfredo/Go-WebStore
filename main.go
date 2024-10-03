@@ -19,6 +19,13 @@ func main() {
 		"Undertale" : 9.99,
 		"Mario Kart 8 Deluxe" : 39.99,
 	}
+
+	// images :=map[string]string {
+	// 	"Super Mario Odyssey" : "./assets/images/odyssey.png",
+	// 	"Undertale" : "./assets/images/undertale.png",
+	// 	"Mario Kart 8 Deluxe" : "./assets/images/kart.png",
+	// }
+
 	e := echo.New()
 	e.Use(etag.Etag())
 

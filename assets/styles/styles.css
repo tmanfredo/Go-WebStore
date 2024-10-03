@@ -67,10 +67,28 @@ select {
 	text-align: center;
 }
 
+#quantity {
+	width: 3em;
+}
+
+#donate {
+	margin: 1em;
+}
+
+.required label {
+    font-weight: bold;
+}
+.required label:before {
+    color: #e32;
+    content: '* ';
+    display:inline;
+}
+
 .container {
 	width: 80vw;
 	display: flex;
 	justify-content: space-around;
+	padding: 1em;
 }
 
 aside {

@@ -5,33 +5,38 @@ import (
 "go-store/types"
 )
 
-templ Store(products map[string]float64) {
-	<form>
-		<div id="info">
-			<p>Personal Info</p>
+templ Store(products map[string]float64/*, images map[string]string*/) {
+<form>
+	<div id="info" class="required">
+		<p>Personal Info</p>
 
-			<label for="firstName">First Name:</label>
-			<input type="text"><br>
-			<label for="lastName">Last Name:</label>
-			<input type="text"><br>
-			<label for="email">Email:</label>
-			<input type="email"><br>
-			<input type="submit">
-
-		</div>
-		<div id="product">
-			<p>Product Info</p>
-			<select>
-				<option value="Choose a Product" style="font-weight:bold">Choose a Product</option>
-				for product, price := range products {
-				<option value={ product }>
-					{ product }: ${ fmt.Sprintf("%.2f", price) }
-				</option>
-				}
-			</select>
-
-		</div>
-	</form>
+		<label for="firstName">First Name</label>
+		<input type="text" pattern="[A-Za-z' ]+" title="Please input only letters or spaces" required><br>
+		<label for="lastName" >Last Name</label>
+		<input type="text" pattern="[A-Za-z ]+" title="Please input only letters or spaces" required><br>
+		<label for="email">Email</label>
+		<input type="email" required><br>
+	</div>
+	<div id="product" class="required">
+		<p>Product Info</p>
+		<label for="product"> <select required>
+			<option value="" style="font-weight:bold" disabled selected>Choose a Product</option>
+			for product, price := range products {
+			<option value={ product }>
+				{ product }: ${ fmt.Sprintf("%.2f", price) }
+			</option>
+			}
+		</select><br></label>
+		<label for="quantity">Quantity </label>
+		<input id="quantity" type="number" placeholder="0" min="1" max="100" required><br>
+	</div>
+	<div id="donate">
+		<p>Would you like to round up to donate to the Wawhkyung Fund?</p>
+		<label><input type="radio" name="donate" value="No">No</label>
+		<label><input type="radio" name="donate" value="Yes" checked>Yes</label>
+	</div>
+	<input type="submit" value="Purchase">
+</form>
 }
 
 templ PurchaseConfirmation(purchaseInformation types.PurchaseInfo) {
