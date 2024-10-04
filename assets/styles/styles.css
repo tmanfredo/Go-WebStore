@@ -5,14 +5,23 @@
 body {
 	font-family: sans-serif;
 	font-size: 18px;
-	line-height: 1.2rem;
+	line-height: 1.5rem;
 	background-color: aliceblue;
 }
 
+.container {
+	width: 80vw;
+	display: flex;
+	justify-content: space-around;
+	padding: 1em;
+}
+
 header {
+	grid-area: header;
 	text-align: center;
 	height: 2em;
 	font-size: 1.5em;
+	margin-bottom: 2em;
 }
 
 nav {
@@ -33,13 +42,24 @@ a:visited {
 	color: black;
 }
 
-#info {
-	border: solid 1px black;
-	width: fit-content;
-	padding: 1em;
-	text-align: right;
+#store_container {
+	display: grid;
+	grid-template-columns: 2;
+	gap: 1em;
+}
 
-	margin-bottom: 1em;
+#form {
+	grid-column: 1/2;
+	margin-left: 1em;
+}
+
+legend {
+	text-align: center;
+}
+
+#info {
+	text-align: right;
+	width: fit-content;
 }
 
 #info p {
@@ -57,10 +77,9 @@ select {
 }
 
 #product {
-	border: solid 1px black;
-	width: fit-content;
-	padding: 1em;
 	text-align: right;
+	width: fit-content;
+	margin-top: 0.5em;
 }
 
 #product p {
@@ -76,30 +95,41 @@ select {
 }
 
 .required label {
-    font-weight: bold;
-}
-.required label:before {
-    color: #e32;
-    content: '* ';
-    display:inline;
+	font-weight: bold;
 }
 
-.container {
-	width: 80vw;
-	display: flex;
-	justify-content: space-around;
-	padding: 1em;
+.required label:before {
+	color: #e32;
+	content: '* ';
+	display: inline;
 }
+
+#purchase {
+	margin-bottom: 2em;
+}
+
 
 aside {
+	grid-column: 2/2;
 	border: 3px solid black;
 	width: 30vw;
+	text-align: center;
+	height: fit-content;
+}
+
+#image {
+	width: 30vw;
+	margin: 0 auto;
 }
 
 footer {
+	grid-area: footer;
+
 	border-top: double 6px black;
 	padding: 1em;
-	background-color:floralwhite;
+	background-color: floralwhite;
 	font-size: small;
 	text-align: center;
+
+
 }

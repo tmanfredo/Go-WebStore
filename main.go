@@ -14,17 +14,20 @@ import (
 
 func main() {
 	// TODO: Fill in your products here with name -> price as the key -> value pair.
-	products := map[string]float64{
-		"Super Mario Odyssey" : 39.99,
-		"Undertale" : 9.99,
-		"Mario Kart 8 Deluxe" : 39.99,
+	products := map[string]struct{
+		Price float64
+		Image string
+	}{
+		"Super Mario Odyssey" : {Price: 39.99, Image: "assets/images/odyssey.png"},
+		"Undertale" : {Price: 9.99, Image: "assets/images/undertale.png"},
+		"Mario Kart 8 Deluxe" : {Price: 39.99, Image: "assets/images/kart.png"},
 	}
 
-	// images :=map[string]string {
-	// 	"Super Mario Odyssey" : "./assets/images/odyssey.png",
-	// 	"Undertale" : "./assets/images/undertale.png",
-	// 	"Mario Kart 8 Deluxe" : "./assets/images/kart.png",
-	// }
+	/* images :=map[string]string {
+		"Super Mario Odyssey" : "assets/images/odyssey.png",
+		"Undertale" : "assets/images/undertale.png",
+		"Mario Kart 8 Deluxe" : "assets/images/kart.png",
+	} */
 
 	e := echo.New()
 	e.Use(etag.Etag())
