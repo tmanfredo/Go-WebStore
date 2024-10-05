@@ -9,14 +9,7 @@ body {
 	background-color: aliceblue;
 }
 
-.container {
-	width: 80vw;
-	display: flex;
-	justify-content: space-around;
-	padding: 1em;
-}
-
-header {
+header{
 	grid-area: header;
 	text-align: center;
 	height: 2em;
@@ -25,7 +18,6 @@ header {
 }
 
 nav {
-	background-color: aqua;
 	padding: 16px 2px;
 	width: auto;
 	margin: 0 auto;
@@ -33,7 +25,8 @@ nav {
 }
 
 nav a {
-	border-right: solid 5px white;
+	border: ridge 5px white;
+	background-color: rgb(201, 245, 247);
 	padding: 14px 16px;
 	text-decoration: none;
 }
@@ -46,11 +39,14 @@ a:visited {
 	display: grid;
 	grid-template-columns: 2;
 	gap: 1em;
+	background-color: rgb(201, 229, 254);
+	padding: 1em;
 }
 
 #form {
 	grid-column: 1/2;
 	margin-left: 1em;
+	border-right: solid 2px black;
 }
 
 legend {
@@ -80,6 +76,7 @@ select {
 	text-align: right;
 	width: fit-content;
 	margin-top: 0.5em;
+	
 }
 
 #product p {

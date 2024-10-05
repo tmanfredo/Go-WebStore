@@ -3,25 +3,26 @@ package templates
 import (
 "fmt"
 "go-store/types"
+"math"
 )
 
 templ Store(products map[string]struct{Price float64; Image string}) {
 <div id="store_container">
-	<form id="form">
+	<form id="form" action="/purchase" method="POST">
 		<fieldset id="info" class="required">
 			<legend>Personal Info</legend>
 
 			<label for="firstName">First Name</label>
-			<input type="text" pattern="[A-Za-z' ]+" title="Input only letters, spaces, or '" required><br>
+			<input type="text" pattern="[A-Za-z' ]+" title="Input only letters, spaces, or '" name="first" required><br>
 			<label for="lastName">Last Name</label>
-			<input type="text" pattern="[A-Za-z' ]+" title="Input only letters, spaces, or '" required><br>
+			<input type="text" pattern="[A-Za-z' ]+" title="Input only letters, spaces, or '" name="last" required><br>
 			<label for="email">Email</label>
-			<input type="email" required><br>
+			<input type="email" name="email" required><br>
 		</fieldset>
 		<fieldset class="required" id="product">
 			<legend>Product Info</legend>
 			<label for="product">
-				<select required>
+				<select name="product" required>
 					<option value="" style="font-weight:bold" disabled selected>Choose a Product</option>
 					for product, data := range products {
 					<option value={ product } data-image={ data.Image }>
@@ -32,7 +33,7 @@ templ Store(products map[string]struct{Price float64; Image string}) {
 				</select><br>
 			</label>
 			<label for="quantity">Quantity </label>
-			<input id="quantity" type="number" placeholder="1" min="1" max="100" required><br>
+			<input id="quantity" type="number" placeholder="1" min="1" max="100" name="quantity" required><br>
 		</fieldset>
 		<div id="donate">
 			<p>Would you like to round up to donate to the Wawhkyung Fund?</p>
@@ -50,10 +51,27 @@ templ Store(products map[string]struct{Price float64; Image string}) {
 
 templ PurchaseConfirmation(purchaseInformation types.PurchaseInfo) {
 <div>
-	<p>Your purchase confirmation markup would go here</p>
-	<p>You may access things from the
-	<pre>types.PurchaseInfo</pre>
+	<p>
+		Thank you for your order,
+		{ fmt.Sprintf("%s %s (%s).", purchaseInformation.First, purchaseInformation.Last, purchaseInformation.Email) }
 	</p>
-	<p>It might look something like this: your total is { fmt.Sprintf("5"/*"%.2f", purchaseInformation.total*/) }</p>
+	<p>
+		You have purchased { fmt.Sprintf("%d copies of %s.", purchaseInformation.Quantity, purchaseInformation.Product)
+		}
+	</p>
+
+	<p>
+		Subtotal: ${ fmt.Sprintf("%.2f",purchaseInformation.Subtotal) }
+	</p>
+	<p>
+		Total (with tax of 8%): ${ fmt.Sprintf("%.2f", purchaseInformation.Total) }
+	</p>
+
+	if purchaseInformation.Donate == "No" {
+	<p>No donation selected for today.</p>
+	} else {
+	<p> { fmt.Sprintf("Total with donation: %.2f", math.Ceil(purchaseInformation.Total)) } </p>
+	}
+
 </div>
 }

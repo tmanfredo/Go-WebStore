@@ -3,13 +3,13 @@ package main
 import (
 	"net/http"
 
+	"strconv"
 	"github.com/a-h/templ"
 	"github.com/labstack/echo/v4"
 
 	etag "github.com/pablor21/echo-etag/v4"
-
 	"go-store/templates"
-	//"go-store/types"
+	"go-store/types"
 )
 
 func main() {
@@ -43,12 +43,27 @@ func main() {
 
 	// TODO: Handle the form submission and return the purchase confirmation view
 	e.POST("/purchase", func(ctx echo.Context) error {
-		// TODO: Grab the form details from ctx.FormValue("...")
-		// purchaseInfo := types.PurchaseInfo{
-		// 	// TODO: Maybe use this structure to pass the data to your purchase confirmation page
-		// 	// ...
-		// }
-		return Render(ctx, http.StatusOK, templates.Base(templates.Store(products)))
+		
+		
+	quantity, _ := strconv.Atoi(ctx.FormValue("quantity"))
+	product := ctx.FormValue("product")
+	price := products[product].Price
+	tax := 1.08
+	subtotal :=  (price * float64(quantity))
+	total :=  subtotal* tax
+		purchase := types.PurchaseInfo{
+			First:    ctx.FormValue("first"),
+			Last:     ctx.FormValue("last"),
+			Email:    ctx.FormValue("email"),
+			Product:  product,
+			Price:    price,
+			Quantity: quantity,
+			Donate:   ctx.FormValue("donate"),
+			Tax:      tax,
+			Subtotal: subtotal,
+			Total:    total,
+		}
+		return Render(ctx, http.StatusOK, templates.Base(templates.PurchaseConfirmation(purchase)))
 	})
 
 	e.Logger.Fatal(e.Start(":8000"))
