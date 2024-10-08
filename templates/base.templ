@@ -16,10 +16,9 @@ templ Base(content templ.Component) {
 
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
-			// Get the dropdown element by its ID or class
-			const dropdown = document.querySelector('select'); // Change this to your actual dropdown selector
+			
+			const dropdown = document.getElementById("productSelection");
 
-			// Add an event listener to handle changes in the dropdown
 			dropdown.addEventListener('change', function () {
 				const selectedOption = dropdown.options[dropdown.selectedIndex];
 				let imagePath = selectedOption.getAttribute('data-image');

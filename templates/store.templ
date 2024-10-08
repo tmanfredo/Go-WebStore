@@ -22,7 +22,7 @@ templ Store(products map[string]struct{Price float64; Image string}) {
 		<fieldset class="required" id="product">
 			<legend>Product Info</legend>
 			<label for="product">
-				<select name="product" required>
+				<select name="product" id="productSelection" required>
 					<option value="" style="font-weight:bold" disabled selected>Choose a Product</option>
 					for product, data := range products {
 					<option value={ product } data-image={ data.Image }>
