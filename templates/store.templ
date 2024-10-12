@@ -70,7 +70,7 @@ templ PurchaseConfirmation(purchaseInformation types.PurchaseInfo) {
 	if purchaseInformation.Donate == "No" {
 	<p>No donation selected for today.</p>
 	} else {
-	<p> { fmt.Sprintf("Total with donation: %.2f", math.Ceil(purchaseInformation.Total)) } </p>
+	<p> { fmt.Sprintf("Total with donation: $%.2f", math.Ceil(purchaseInformation.Total)) } </p>
 	}
 
 </div>
