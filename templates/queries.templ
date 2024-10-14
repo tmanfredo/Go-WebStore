@@ -1,0 +1,27 @@
+package templates
+
+import( 
+    "go-store/db"
+    "fmt"
+)
+templ Queries(products []db.Product) {
+    <table>
+    <thead>
+        <th>Name</th>
+        <th>Image Path</th>
+        <th>Price</th>
+        <th>InStock</th>
+    </thead>
+    <tbody>
+        for _, product := range products {
+            <tr>
+                <td>{ product.Name }</td>
+                <td>{ product.Image }</td>
+                <td>{ fmt.Sprintf("%f",product.Price) }</td>
+                <td>{ fmt.Sprintf("%d",product.InStock) }</td>
+            </tr>
+        }
+    </tbody>
+
+    </table>
+}

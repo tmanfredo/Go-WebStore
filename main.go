@@ -10,11 +10,37 @@ import (
 	etag "github.com/pablor21/echo-etag/v4"
 	"go-store/templates"
 	"go-store/types"
+	"database/sql"
+	"go-store/db"
+	"github.com/go-sql-driver/mysql"
 )
 
+var connection *sql.DB
+
 func main() {
+	e := echo.New()
+
+
 	// TODO: Fill in your products here with name -> price as the key -> value pair.
-	products := map[string]struct{
+	dbcfg := mysql.Config{
+        User:   "tmanfredo",
+        Passwd: "031820",
+		DBName: "tmanfredo",
+	}
+
+	connection, err := sql.Open("mysql", dbcfg.FormatDSN())
+    if err != nil {
+        e.Logger.Fatal(err)
+    }
+	
+	defer connection.Close()
+
+	err = connection.Ping()  // Check if the connection is live
+	if err != nil {
+		e.Logger.Fatal("Error pinging database: ", err)
+	}
+
+	productMap := map[string]struct{
 		Price float64
 		Image string
 	}{
@@ -23,13 +49,7 @@ func main() {
 		"Mario Kart 8 Deluxe" : {Price: 39.99, Image: "assets/images/kart.png"},
 	}
 
-	/* images :=map[string]string {
-		"Super Mario Odyssey" : "assets/images/odyssey.png",
-		"Undertale" : "assets/images/undertale.png",
-		"Mario Kart 8 Deluxe" : "assets/images/kart.png",
-	} */
-
-	e := echo.New()
+	
 	e.Use(etag.Etag())
 
 	// INFO: If you wanted to load a CSS file, you'd do something like this:
@@ -38,7 +58,11 @@ func main() {
 
 	// TODO: Render your base store page here
 	e.GET("/store", func(ctx echo.Context) error {
-		return Render(ctx, http.StatusOK, templates.Base(templates.Store(products)))
+		return Render(ctx, http.StatusOK, templates.Base(templates.Store(productMap)))
+	})
+	e.GET("/dbQueries", func(ctx echo.Context) error {
+		products, _ := db.GetAllProducts(connection)
+		return Render(ctx, http.StatusOK, templates.Queries(products))
 	})
 
 	// TODO: Handle the form submission and return the purchase confirmation view
@@ -47,7 +71,7 @@ func main() {
 		
 	quantity, _ := strconv.Atoi(ctx.FormValue("quantity"))
 	product := ctx.FormValue("product")
-	price := products[product].Price
+	price := productMap[product].Price
 	tax := 1.08
 	subtotal :=  (price * float64(quantity))
 	total :=  subtotal* tax
