@@ -62,7 +62,8 @@ func main() {
 	})
 	e.GET("/dbQueries", func(ctx echo.Context) error {
 		products, _ := db.GetAllProducts(connection)
-		return Render(ctx, http.StatusOK, templates.Queries(products))
+		customers, _ := db.GetAllCustomers(connection)
+		return Render(ctx, http.StatusOK, templates.Queries(products, customers))
 	})
 
 	// TODO: Handle the form submission and return the purchase confirmation view

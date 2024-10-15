@@ -9,7 +9,7 @@ body {
 	background-color: aliceblue;
 }
 
-header{
+header {
 	text-align: center;
 	height: 2em;
 	font-size: 1.5em;
@@ -75,7 +75,7 @@ select {
 	text-align: right;
 	width: fit-content;
 	margin-top: 0.5em;
-	
+
 }
 
 #product p {
@@ -118,6 +118,29 @@ aside {
 	margin: 0 auto;
 }
 
+
+table {
+	border-collapse: collapse;
+	border: 1px solid black;
+	text-align: center;
+
+	margin: 2em;
+}
+
+table th {
+	border: 1px solid black;
+	padding: 1em;
+}
+
+table td {
+	border: 1px solid black;
+	padding: 1em;
+}
+
+td img {
+	width: 10vw;
+}
+
 footer {
 	grid-area: footer;
 
@@ -126,6 +149,4 @@ footer {
 	background-color: floralwhite;
 	font-size: small;
 	text-align: center;
-
-
 }

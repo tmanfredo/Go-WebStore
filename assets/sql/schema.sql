@@ -5,28 +5,28 @@ DROP TABLE IF EXISTS customer;
 DROP TABLE IF EXISTS product;
 
 CREATE TABLE product ( 
-    id int  NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+    id SERIAL PRIMARY KEY, 
     product_name varchar(255), 
     image_name varchar(255), 
-    price decimal(4,2), 
+    price decimal(6,2), 
     in_stock int 
 );
 
 CREATE TABLE customer ( 
-    id int NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+    id SERIAL PRIMARY KEY, 
     first_name varchar(255), 
     last_name varchar(255), 
     email varchar(255) 
 );
 
 CREATE TABLE orders ( 
-    id int NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+    id SERIAL PRIMARY KEY, 
     product_id int REFERENCES product(id),
     customer_id int REFERENCES customer(id), 
     quantity int, 
-    price decimal(2,2), 
-    tax decimal(2,2), 
-    donation decimal(2,2), 
+    price decimal(6,2), 
+    tax decimal(6,2), 
+    donation decimal(6,2), 
     timestamp bigint 
 );
 

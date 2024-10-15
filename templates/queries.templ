@@ -1,27 +1,65 @@
 package templates
 
-import( 
-    "go-store/db"
-    "fmt"
+import(
+"go-store/db"
+"fmt"
 )
-templ Queries(products []db.Product) {
-    <table>
+
+templ Queries(products []db.Product, customers []db.Customer) {
+
+<head>
+    <title>Database Queries</title>
+    <link rel="stylesheet" href="assets/styles/styles.css">
+</head>
+
+<body>
+    @header()
+
+    @AllProducts(products)
+    @AllCustomers(customers)
+
+    @footer()
+</body>
+}
+
+templ AllProducts(products []db.Product){
+<table>
     <thead>
         <th>Name</th>
-        <th>Image Path</th>
+        <th>Product Image</th>
         <th>Price</th>
         <th>InStock</th>
     </thead>
     <tbody>
         for _, product := range products {
-            <tr>
-                <td>{ product.Name }</td>
-                <td>{ product.Image }</td>
-                <td>{ fmt.Sprintf("%f",product.Price) }</td>
-                <td>{ fmt.Sprintf("%d",product.InStock) }</td>
-            </tr>
+        <tr>
+            <td>{ product.Name }</td>
+            <td><img src={ product.Image }></td>
+            <td>${ fmt.Sprintf("%.2f",product.Price) }</td>
+            <td>{ fmt.Sprintf("%d",product.InStock) }</td>
+        </tr>
         }
     </tbody>
 
-    </table>
+</table>
+}
+
+templ AllCustomers(customers []db.Customer){
+<table>
+    <thead>
+        <th>First</th>
+        <th>Last</th>
+        <th>Email</th>
+    </thead>
+    <tbody>
+        for _, customer := range customers {
+        <tr>
+            <td>{ customer.First }</td>
+            <td>{ customer.Last }</td>
+            <td><a> { customer.Email } </a></td>
+        </tr>
+        }
+    </tbody>
+
+</table>
 }
