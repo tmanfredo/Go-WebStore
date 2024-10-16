@@ -21,6 +21,7 @@ nav {
 	width: auto;
 	margin: 0 auto;
 	margin-bottom: 1em;
+	color: black;
 }
 
 nav a {
@@ -139,6 +140,11 @@ table td {
 
 td img {
 	width: 10vw;
+}
+
+#queries {
+	padding: 2em;
+	background-color: rgb(201, 229, 254);
 }
 
 footer {

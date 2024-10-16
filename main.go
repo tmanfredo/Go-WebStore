@@ -45,7 +45,7 @@ func main() {
 		Image string
 	}{
 		"Super Mario Odyssey" : {Price: 39.99, Image: "assets/images/odyssey.png"},
-		"Undertale" : {Price: 9.99, Image: "assets/images/undertale.png"},
+		"Undertale" : {Price: 19.99, Image: "assets/images/undertale.png"},
 		"Mario Kart 8 Deluxe" : {Price: 39.99, Image: "assets/images/kart.png"},
 	}
 
@@ -56,17 +56,26 @@ func main() {
 	// `<link rel="stylesheet" href="assets/styles/styles.css">`
 	e.Static("assets", "./assets")
 
-	// TODO: Render your base store page here
 	e.GET("/store", func(ctx echo.Context) error {
 		return Render(ctx, http.StatusOK, templates.Base(templates.Store(productMap)))
 	})
 	e.GET("/dbQueries", func(ctx echo.Context) error {
 		products, _ := db.GetAllProducts(connection)
 		customers, _ := db.GetAllCustomers(connection)
-		return Render(ctx, http.StatusOK, templates.Queries(products, customers))
+		numCustomers, _ := db.NumOfCustomers(connection)
+		customer1, _ := db.GetCustomerById(connection, 1)
+		customer2, _ := db.GetCustomerById(connection, 3)
+		db.AddCustomer(connection, "Thomas", "Manfredo", "tmanfredo@mines.edu")
+		customer2Added, _ := db.GetCustomerById(connection, 3)
+		customer3, _ := db.GetCustomerByEmail(connection, "mmouse@mines.edu")
+		customer4, _ := db.GetCustomerByEmail(connection, "tmanfredo@mines.edu")
+		orders, _ := db.GetAllOrders(connection)
+		numOrders, _ := db.NumOfOrders(connection)
+		return Render(ctx, http.StatusOK, templates.Queries(products, customers, numCustomers, 
+			customer1, customer2, customer2Added, customer3, customer4, orders, numOrders))
 	})
 
-	// TODO: Handle the form submission and return the purchase confirmation view
+	// Handle the form submission and return the purchase confirmation view
 	e.POST("/purchase", func(ctx echo.Context) error {
 		
 		
