@@ -13,3 +13,40 @@ type PurchaseInfo struct {
 	Subtotal float64
 	Total float64
 }
+
+type Product struct{
+	Name string
+	Image string
+	Price float64
+	Instock int
+}
+
+type Order struct{
+    Product_Name string
+    Customer_Name string
+    Quantity int
+    Price float64 
+    Tax float64
+    Donation float64
+    Timestamp int
+}
+
+type Customer struct{
+	First string
+	Last string
+	Email string
+}
+
+type TemplateData struct {
+    Products      []Product
+    Customers     []Customer
+    NumCustomers  int
+    Customer1     *Customer
+    Customer2     *Customer
+    Customer2Added *Customer
+    Customer3     *Customer
+    Customer4     *Customer
+    Orders        []Order
+    NumOrders     int
+	NumOrdersNone int
+}

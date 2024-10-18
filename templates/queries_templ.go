@@ -10,11 +10,10 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"go-store/db"
+	"go-store/types"
 )
 
-func Queries(products []db.Product, customers []db.Customer, numCustomers int, customer1 *db.Customer, customer2 *db.Customer,
-	customer2Added *db.Customer, customer3 *db.Customer, customer4 *db.Customer, orders []db.Order, numOrders int) templ.Component {
+func Queries(data types.TemplateData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -47,43 +46,47 @@ func Queries(products []db.Product, customers []db.Customer, numCustomers int, c
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = AllProducts(products).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = AllCustomers(data.Customers).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = AllCustomers(customers).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = NumCustomers(data.NumCustomers).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = NumCustomers(numCustomers).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = CustomerById(data.Customer1).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = CustomerById(customer1).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = CustomerById(data.Customer2).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = CustomerById(customer2).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = CustomerById(data.Customer2Added).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = CustomerById(customer2Added).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = CustomerByEmail(data.Customer3).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = CustomerByEmail(customer3).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = CustomerByEmail(data.Customer4).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = CustomerByEmail(customer4).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = NumOrders(data.NumOrdersNone).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = AllOrders(orders).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = AllOrders(data.Orders).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = NumOrders(numOrders).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = NumOrders(data.NumOrders).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = AllProducts(data.Products).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -103,7 +106,7 @@ func Queries(products []db.Product, customers []db.Customer, numCustomers int, c
 	})
 }
 
-func AllProducts(products []db.Product) templ.Component {
+func AllProducts(products []types.Product) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -136,7 +139,7 @@ func AllProducts(products []db.Product) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(product.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 46, Col: 30}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 47, Col: 30}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -149,7 +152,7 @@ func AllProducts(products []db.Product) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(product.Image)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 47, Col: 40}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 48, Col: 40}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -162,7 +165,7 @@ func AllProducts(products []db.Product) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", product.Price))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 48, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 49, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -175,7 +178,7 @@ func AllProducts(products []db.Product) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", product.Instock))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 49, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 50, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -194,7 +197,7 @@ func AllProducts(products []db.Product) templ.Component {
 	})
 }
 
-func AllCustomers(customers []db.Customer) templ.Component {
+func AllCustomers(customers []types.Customer) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -227,7 +230,7 @@ func AllCustomers(customers []db.Customer) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(customer.First)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 67, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 68, Col: 32}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -240,7 +243,7 @@ func AllCustomers(customers []db.Customer) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(customer.Last)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 68, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 69, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -253,7 +256,7 @@ func AllCustomers(customers []db.Customer) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(customer.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 69, Col: 36}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 70, Col: 36}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -293,20 +296,20 @@ func NumCustomers(numCustomers int) templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>Number of Customers: ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", numCustomers))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 78, Col: 38}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 79, Col: 58}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</h1>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -314,7 +317,7 @@ func NumCustomers(numCustomers int) templ.Component {
 	})
 }
 
-func CustomerById(customer *db.Customer) templ.Component {
+func CustomerById(customer *types.Customer) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -335,7 +338,7 @@ func CustomerById(customer *db.Customer) templ.Component {
 			templ_7745c5c3_Var13 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if customer.First == "" {
+		if customer == nil {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>This customer's information does not exist!</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -363,7 +366,7 @@ func CustomerById(customer *db.Customer) templ.Component {
 	})
 }
 
-func CustomerByEmail(customer *db.Customer) templ.Component {
+func CustomerByEmail(customer *types.Customer) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -384,7 +387,7 @@ func CustomerByEmail(customer *db.Customer) templ.Component {
 			templ_7745c5c3_Var15 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if customer.First == "" {
+		if customer == nil {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>This customer's information does not exist!</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -412,7 +415,7 @@ func CustomerByEmail(customer *db.Customer) templ.Component {
 	})
 }
 
-func AllOrders(orders []db.Order) templ.Component {
+func AllOrders(orders []types.Order) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -433,7 +436,7 @@ func AllOrders(orders []db.Order) templ.Component {
 			templ_7745c5c3_Var17 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<table><thead><th>Product Name</th><th>Customer Name</th><th>Quantity</th><th>Price</th><th>Tax</th><th>Donation</th><th>Timestamp</th></thead> <tbody>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<table><thead><th>Product Name</th><th>Customer Name</th><th>Quantity</th><th>Price</th><th>Tax</th><th>Total (with donation round up if applicable)</th><th>Timestamp</th></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -564,25 +567,25 @@ func NumOrders(numOrders int) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if numOrders == 0 {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>No orders yet</h1>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<em>No orders yet</em>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>Number of orders: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var26 string
 			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", numOrders))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 134, Col: 35}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/queries.templ`, Line: 134, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</h1>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

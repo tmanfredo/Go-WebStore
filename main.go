@@ -57,8 +57,7 @@ func main() {
 		return Render(ctx, http.StatusOK, templates.Base(templates.Store(productMap)))
 	})
 	e.GET("/dbQueries", func(ctx echo.Context) error {
-		db.ResetDB(connection)
-		products, _ := db.GetAllProducts(connection)
+		
 		customers, _ := db.GetAllCustomers(connection)
 		numCustomers, _ := db.NumOfCustomers(connection)
 		customer1, _ := db.GetCustomerById(connection, 1)
@@ -67,11 +66,26 @@ func main() {
 		customer2Added, _ := db.GetCustomerById(connection, 3)
 		customer3, _ := db.GetCustomerByEmail(connection, "mmouse@mines.edu")
 		customer4, _ := db.GetCustomerByEmail(connection, "tmanfredo@mines.edu")
-		db.AddOrder(connection, 1, 1, 2, true)
+		numOrdersNone, _ := db.NumOfOrders(connection)
+		db.AddOrder(connection, 1, 2, 1, false)
+		products, _ := db.GetAllProducts(connection)
 		orders, _ := db.GetAllOrders(connection)
 		numOrders, _ := db.NumOfOrders(connection)
-		return Render(ctx, http.StatusOK, templates.Queries(products, customers, numCustomers, 
-			customer1, customer2, customer2Added, customer3, customer4, orders, numOrders))
+
+		data := types.TemplateData{
+			Products:      products,
+			Customers:     customers,
+			NumCustomers:  numCustomers,
+			Customer1:     customer1,
+			Customer2:     customer2,
+			Customer2Added: customer2Added,
+			Customer3:     customer3,
+			Customer4:     customer4,
+			Orders:        orders,
+			NumOrders:     numOrders,
+			NumOrdersNone: numOrdersNone,
+		}
+		return Render(ctx, http.StatusOK, templates.Queries(data))
 	})
 
 	// Handle the form submission and return the purchase confirmation view
