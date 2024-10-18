@@ -100,8 +100,8 @@ else {
 templ AllOrders(orders []db.Order){
 <table>
     <thead>
-        <th>Product Id</th>
-        <th>Customer Id</th>
+        <th>Product Name</th>
+        <th>Customer Name</th>
         <th>Quantity</th>
         <th>Price</th>
         <th>Tax</th>
@@ -111,13 +111,13 @@ templ AllOrders(orders []db.Order){
     <tbody>
         for _, order := range orders {
         <tr>
-            <td>{ fmt.Sprintf("%d",order.Product_Id)}</td>
-            <td>{ fmt.Sprintf("%d",order.Customer_Id) }</td>
+            <td>{ fmt.Sprintf("%s",order.Product_Name)}</td>
+            <td>{ fmt.Sprintf("%s",order.Customer_Name) }</td>
             <td> { fmt.Sprintf("%d",order.Quantity) }</td>
-            <td>{ fmt.Sprintf("%.2f",order.Price) }</td>
-            <td>{ fmt.Sprintf("%.2f",order.Tax) }</td>
-            <td> { fmt.Sprintf("%.2f",order.Donation) }</td>
-            <td> { (order.Timestamp).String() }</td>
+            <td>{ fmt.Sprintf("$%.2f",order.Price) }</td>
+            <td>{ fmt.Sprintf("%.2f%%",order.Tax) }</td>
+            <td> { fmt.Sprintf("$%.2f",order.Donation) }</td>
+            <td> { fmt.Sprintf("%d",order.Timestamp) }</td>
         </tr>
         }
     </tbody>

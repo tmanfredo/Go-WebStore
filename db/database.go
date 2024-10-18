@@ -2,8 +2,9 @@ package db
 
 import (
 	"database/sql"
-    "time"
     "fmt"
+    "math"
+    "io/ioutil"
 )
 
 type Product struct{
@@ -20,14 +21,33 @@ type Customer struct{
 }
 
 type Order struct{
-    Product_Id int
-    Customer_Id int
+    Product_Name string
+    Customer_Name string
     Quantity int
     Price float64 
     Tax float64
     Donation float64
-    Timestamp time.Time
+    Timestamp int64
 }
+
+func ResetDB(connection *sql.DB) error {
+    // Read the SQL file
+    sqlFile, err := ioutil.ReadFile("assets/sql/schema.sql")
+    if err != nil {
+        return fmt.Errorf("error reading schema file: %w", err)
+    }
+
+    // Split and execute each statement in the SQL file (if there are multiple)
+    statements := string(sqlFile)
+    _, err = connection.Exec(statements)
+    if err != nil {
+        return fmt.Errorf("error executing SQL statements: %w", err)
+    }
+
+    return nil
+}
+
+
 
 func AddCustomer (connection *sql.DB, first_name string, last_name string, email string){
     stmt, err := connection.Prepare("INSERT INTO customer (first_name, last_name, email) VALUES (?,?,?)")
@@ -35,7 +55,7 @@ func AddCustomer (connection *sql.DB, first_name string, last_name string, email
         fmt.Sprintf("Error inserting into customer: %s", err)
     }
     defer stmt.Close()
-    stmt.Query(first_name, last_name, email)
+    stmt.Exec(first_name, last_name, email)
 }
 
 func GetAllCustomers (connection *sql.DB) ([]Customer, error){
@@ -152,7 +172,7 @@ func NumOfOrders (connection *sql.DB) (int, error){
 }
 
 func GetAllOrders(connection *sql.DB) ([]Order, error){
-	stmt, err := connection.Prepare("SELECT product_id, customer_id, quantity, price, tax, donation FROM product")
+	stmt, err := connection.Prepare("SELECT product_id, customer_id, quantity, price, tax, donation FROM orders")
     if err != nil {
         return nil, err
     }
@@ -167,19 +187,59 @@ func GetAllOrders(connection *sql.DB) ([]Order, error){
     var orders []Order
 
     for rows.Next() {
-        var order Order
-        err := rows.Scan(&order.Product_Id, &order.Customer_Id,&order.Quantity, &order.Price, &order.Tax, &order.Donation)
+        var (
+            productId   int
+            customerId  int
+            order       Order
+        )
+        err := rows.Scan(&productId, &customerId,&order.Quantity, &order.Price, &order.Tax, &order.Donation)
         if err != nil {
             return nil, err
         }
+       
+        product, err := GetProductById(connection, productId)
+        if err != nil {
+            return nil, err
+        }
+
+        order.Product_Name = product.Name
+
+        customer, err := GetCustomerById(connection, customerId)
+        if err != nil {
+            return nil, err
+        }
+
+        order.Customer_Name = customer.First + " " + customer.Last
+
         orders = append(orders, order)
     }
 
 	return orders, nil
 }
 
-func AddOrder (connection *sql.DB, product_id int, customer_id int, quantity int) {
+func AddOrder (connection *sql.DB, product_id int, customer_id int, quantity int, donation bool) error{
+    product, err := GetProductById(connection, product_id)
+    if err != nil {
+        return fmt.Errorf("error fetching product: %w", err)
+    }
+    tax := 1.08
+    total := float64(quantity)*product.Price*tax
 
+    if donation {
+        total = math.Ceil(total)
+    }
+
+    stmt, err := connection.Prepare("INSERT INTO orders (product_id, customer_id, quantity, price, tax, donation, timestamp) VALUES (?,?,?,?,?,?,NOW())")
+    if err != nil {
+        return fmt.Errorf("error preparing SQL statement: %w", err)
+    }
+    defer stmt.Close()
+
+    _, err = stmt.Exec(product_id, customer_id, quantity, product.Price, tax, total)
+    if err != nil {
+        return fmt.Errorf("error executing SQL statement: %w", err)
+    }
+    return nil
 }
 
 func GetAllProducts(connection *sql.DB) ([]Product, error){
@@ -209,4 +269,25 @@ func GetAllProducts(connection *sql.DB) ([]Product, error){
 	return products, nil
 }
 
-func GetProductPrice (connection *sql.DB, product_id int)
+func GetProductById (connection *sql.DB, product_id int) (*Product, error){
+    var product Product
+    stmt, err := connection.Prepare("SELECT product_name, image_name, price, in_stock FROM product WHERE id=?")
+    if err != nil {
+        return nil, err
+    }
+    defer stmt.Close()
+
+	rows, err := stmt.Query(product_id)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+    
+    
+    if rows.Next() {
+        rows.Scan(&product.Name, &product.Image, &product.Price, &product.Instock)
+    }
+
+    return &product, nil
+}
+

@@ -35,10 +35,7 @@ func main() {
 	
 	defer connection.Close()
 
-	err = connection.Ping()  // Check if the connection is live
-	if err != nil {
-		e.Logger.Fatal("Error pinging database: ", err)
-	}
+
 
 	productMap := map[string]struct{
 		Price float64
@@ -60,6 +57,7 @@ func main() {
 		return Render(ctx, http.StatusOK, templates.Base(templates.Store(productMap)))
 	})
 	e.GET("/dbQueries", func(ctx echo.Context) error {
+		db.ResetDB(connection)
 		products, _ := db.GetAllProducts(connection)
 		customers, _ := db.GetAllCustomers(connection)
 		numCustomers, _ := db.NumOfCustomers(connection)
@@ -69,6 +67,7 @@ func main() {
 		customer2Added, _ := db.GetCustomerById(connection, 3)
 		customer3, _ := db.GetCustomerByEmail(connection, "mmouse@mines.edu")
 		customer4, _ := db.GetCustomerByEmail(connection, "tmanfredo@mines.edu")
+		db.AddOrder(connection, 1, 1, 2, true)
 		orders, _ := db.GetAllOrders(connection)
 		numOrders, _ := db.NumOfOrders(connection)
 		return Render(ctx, http.StatusOK, templates.Queries(products, customers, numCustomers, 
