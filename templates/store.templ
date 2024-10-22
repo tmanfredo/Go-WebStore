@@ -6,7 +6,7 @@ import (
 "math"
 )
 
-templ Store(products map[string]struct{Price float64; Image string}) {
+templ Store(products[] types.Product) {
 <div id="store_container">
 	<form id="form" action="/purchase" method="POST">
 		<fieldset id="info" class="required">
@@ -24,9 +24,9 @@ templ Store(products map[string]struct{Price float64; Image string}) {
 			<label for="product">
 				<select name="product" id="productSelection" required>
 					<option value="" style="font-weight:bold" disabled selected>Choose a Product</option>
-					for product, data := range products {
-					<option value={ product } data-image={ data.Image }>
-						{ fmt.Sprintf("%s: $%.2f", product, data.Price) }
+					for _, product := range products {
+					<option value={ product.Name } data-image={ product.Image } data-stock={ fmt.Sprintf("%d",product.Instock) }>
+						{ fmt.Sprintf("%s: $%.2f", product.Name, product.Price) }
 					</option>
 					}
 
@@ -45,6 +45,7 @@ templ Store(products map[string]struct{Price float64; Image string}) {
 	<aside id="images">
 		<p>Select a product to see the cover art</p>
 		<img id="image" src="">
+		<p id="instock"></p>
 	</aside>
 </div>
 }
@@ -52,6 +53,7 @@ templ Store(products map[string]struct{Price float64; Image string}) {
 templ PurchaseConfirmation(purchaseInformation types.PurchaseInfo) {
 <div>
 	<p>
+		{ fmt.Sprintf("%s", purchaseInformation.Welcome) }
 		Thank you for your order,
 		{ fmt.Sprintf("%s %s (%s).", purchaseInformation.First, purchaseInformation.Last, purchaseInformation.Email) }
 	</p>

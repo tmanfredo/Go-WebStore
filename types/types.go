@@ -2,6 +2,7 @@ package types
 
 // TODO: If you choose to use a struct rather than individual parameters to your view, you might flesh this one out:
 type PurchaseInfo struct {
+	Welcome string
 	First string
 	Last string
 	Email string
@@ -15,6 +16,7 @@ type PurchaseInfo struct {
 }
 
 type Product struct{
+	Id int
 	Name string
 	Image string
 	Price float64
@@ -32,6 +34,7 @@ type Order struct{
 }
 
 type Customer struct{
+	Id int
 	First string
 	Last string
 	Email string

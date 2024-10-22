@@ -37,14 +37,7 @@ func main() {
 
 
 
-	productMap := map[string]struct{
-		Price float64
-		Image string
-	}{
-		"Super Mario Odyssey" : {Price: 39.99, Image: "assets/images/odyssey.png"},
-		"Undertale" : {Price: 19.99, Image: "assets/images/undertale.png"},
-		"Mario Kart 8 Deluxe" : {Price: 39.99, Image: "assets/images/kart.png"},
-	}
+	
 
 	
 	e.Use(etag.Etag())
@@ -53,8 +46,9 @@ func main() {
 	// `<link rel="stylesheet" href="assets/styles/styles.css">`
 	e.Static("assets", "./assets")
 
+	storeProducts, _ := db.GetAllProducts(connection);
 	e.GET("/store", func(ctx echo.Context) error {
-		return Render(ctx, http.StatusOK, templates.Base(templates.Store(productMap)))
+		return Render(ctx, http.StatusOK, templates.Base(templates.Store(storeProducts)))
 	})
 	e.GET("/dbQueries", func(ctx echo.Context) error {
 		
@@ -67,7 +61,7 @@ func main() {
 		customer3, _ := db.GetCustomerByEmail(connection, "mmouse@mines.edu")
 		customer4, _ := db.GetCustomerByEmail(connection, "tmanfredo@mines.edu")
 		numOrdersNone, _ := db.NumOfOrders(connection)
-		db.AddOrder(connection, 1, 2, 1, false)
+		db.AddOrder(connection, 1, 2, 1, "No")
 		products, _ := db.GetAllProducts(connection)
 		orders, _ := db.GetAllOrders(connection)
 		numOrders, _ := db.NumOfOrders(connection)
@@ -90,15 +84,25 @@ func main() {
 
 	// Handle the form submission and return the purchase confirmation view
 	e.POST("/purchase", func(ctx echo.Context) error {
-		
+	customer, _ := db.GetCustomerByEmail(connection, ctx.FormValue("email"))
+	welcome := ""
+	if customer == nil {
+		db.AddCustomer(connection, ctx.FormValue("first"), ctx.FormValue("last"), ctx.FormValue("email"))
+		customer, _ = db.GetCustomerByEmail(connection, ctx.FormValue("email"))
+		welcome = "Looks like you're new! An account has been made for you."
+	} else {
+		welcome = "Welcome back!"
+	}
 		
 	quantity, _ := strconv.Atoi(ctx.FormValue("quantity"))
 	product := ctx.FormValue("product")
-	price := productMap[product].Price
+	dbProduct,_ := db.GetProductByName(connection, product)
+	price := dbProduct.Price 
 	tax := 1.08
 	subtotal :=  (price * float64(quantity))
 	total :=  subtotal* tax
 		purchase := types.PurchaseInfo{
+			Welcome:  welcome,
 			First:    ctx.FormValue("first"),
 			Last:     ctx.FormValue("last"),
 			Email:    ctx.FormValue("email"),
@@ -110,6 +114,7 @@ func main() {
 			Subtotal: subtotal,
 			Total:    total,
 		}
+		db.AddOrder(connection, dbProduct.Id, customer.Id, quantity, ctx.FormValue("donate"))
 		return Render(ctx, http.StatusOK, templates.Base(templates.PurchaseConfirmation(purchase)))
 	})
 

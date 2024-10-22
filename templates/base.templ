@@ -7,6 +7,7 @@ templ Base(content templ.Component) {
 <head>
 	<title>GameHalt</title>
 	<link rel="stylesheet" href="assets/styles/styles.css">
+	<link rel="icon" type="image/x-icon" href="assets/images/page_icon.ico">
 </head>
 
 <body>
@@ -18,12 +19,35 @@ templ Base(content templ.Component) {
 		document.addEventListener('DOMContentLoaded', function () {
 			
 			const dropdown = document.getElementById("productSelection");
-
+			let instockValue = 0;
 			dropdown.addEventListener('change', function () {
 				const selectedOption = dropdown.options[dropdown.selectedIndex];
 				let imagePath = selectedOption.getAttribute('data-image');
 				const image = document.getElementById("image");
 				image.setAttribute("src", imagePath);
+				const instock = document.getElementById("instock");
+				instockValue = selectedOption.getAttribute('data-stock');
+
+				if(instockValue == 0) {
+					instock.innerHTML = "SOLD OUT";
+					instock.style.color = "red";
+				}
+				else if(instockValue < 5) {
+					instock.innerHTML = "Only " + instockValue + " left";
+					instock.style.color = "rgb(255, 204, 38)";
+				}
+				else {
+					instock.innerHTML = ""	;				
+				}
+			});
+
+			const form = document.getElementById("form");
+
+			form.addEventListener('submit', function (){
+
+				const instock = document.getElementById("instock");
+				let quantity = document.getElementById("quantity");
+				instock.setAttribute('data-stock', instockValue - Number(quantity));
 			});
 		});
 	</script>

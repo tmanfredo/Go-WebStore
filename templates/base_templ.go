@@ -29,7 +29,7 @@ func Base(content templ.Component) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><title>GameHalt</title><link rel=\"stylesheet\" href=\"assets/styles/styles.css\"></head><body>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><title>GameHalt</title><link rel=\"stylesheet\" href=\"assets/styles/styles.css\"><link rel=\"icon\" type=\"image/x-icon\" href=\"assets/images/page_icon.ico\"></head><body>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -45,7 +45,7 @@ func Base(content templ.Component) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\r\n\t\tdocument.addEventListener('DOMContentLoaded', function () {\r\n\t\t\t\r\n\t\t\tconst dropdown = document.getElementById(\"productSelection\");\r\n\r\n\t\t\tdropdown.addEventListener('change', function () {\r\n\t\t\t\tconst selectedOption = dropdown.options[dropdown.selectedIndex];\r\n\t\t\t\tlet imagePath = selectedOption.getAttribute('data-image');\r\n\t\t\t\tconst image = document.getElementById(\"image\");\r\n\t\t\t\timage.setAttribute(\"src\", imagePath);\r\n\t\t\t});\r\n\t\t});\r\n\t</script></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\r\n\t\tdocument.addEventListener('DOMContentLoaded', function () {\r\n\t\t\t\r\n\t\t\tconst dropdown = document.getElementById(\"productSelection\");\r\n\t\t\tlet instockValue = 0;\r\n\t\t\tdropdown.addEventListener('change', function () {\r\n\t\t\t\tconst selectedOption = dropdown.options[dropdown.selectedIndex];\r\n\t\t\t\tlet imagePath = selectedOption.getAttribute('data-image');\r\n\t\t\t\tconst image = document.getElementById(\"image\");\r\n\t\t\t\timage.setAttribute(\"src\", imagePath);\r\n\t\t\t\tconst instock = document.getElementById(\"instock\");\r\n\t\t\t\tinstockValue = selectedOption.getAttribute('data-stock');\r\n\r\n\t\t\t\tif(instockValue == 0) {\r\n\t\t\t\t\tinstock.innerHTML = \"SOLD OUT\";\r\n\t\t\t\t\tinstock.style.color = \"red\";\r\n\t\t\t\t}\r\n\t\t\t\telse if(instockValue < 5) {\r\n\t\t\t\t\tinstock.innerHTML = \"Only \" + instockValue + \" left\";\r\n\t\t\t\t\tinstock.style.color = \"rgb(255, 204, 38)\";\r\n\t\t\t\t}\r\n\t\t\t\telse {\r\n\t\t\t\t\tinstock.innerHTML = \"\"\t;\t\t\t\t\r\n\t\t\t\t}\r\n\t\t\t});\r\n\r\n\t\t\tconst form = document.getElementById(\"form\");\r\n\r\n\t\t\tform.addEventListener('submit', function (){\r\n\r\n\t\t\t\tconst instock = document.getElementById(\"instock\");\r\n\t\t\t\tlet quantity = document.getElementById(\"quantity\");\r\n\t\t\t\tinstock.setAttribute('data-stock', instockValue - Number(quantity));\r\n\t\t\t});\r\n\t\t});\r\n\t</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

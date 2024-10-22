@@ -3,6 +3,7 @@ package templates
 import(
 "fmt"
 "go-store/types"
+"time"
 )
 
 
@@ -117,7 +118,7 @@ templ AllOrders(orders []types.Order){
             <td>{ fmt.Sprintf("$%.2f",order.Price) }</td>
             <td>{ fmt.Sprintf("%.2f%%",order.Tax) }</td>
             <td> { fmt.Sprintf("$%.2f",order.Donation) }</td>
-            <td> { fmt.Sprintf("%d",order.Timestamp) }</td>
+            <td> { fmt.Sprintf("%s", time.UnixMilli(int64(order.Timestamp)).String()) }</td>
         </tr>
         }
     </tbody>

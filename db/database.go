@@ -70,7 +70,7 @@ func NumOfCustomers (connection *sql.DB) (int, error){
 
 func GetCustomerById(connection *sql.DB, id int) (*types.Customer, error) {
     var customer types.Customer
-    stmt, err := connection.Prepare("SELECT first_name, last_name, email FROM customer WHERE id=?")
+    stmt, err := connection.Prepare("SELECT * FROM customer WHERE id=?")
     if err != nil {
         return nil, err
     }
@@ -85,7 +85,7 @@ func GetCustomerById(connection *sql.DB, id int) (*types.Customer, error) {
     // Check if there are any rows returned
     if rows.Next() {
         // Scan the values into the customer struct
-        err := rows.Scan(&customer.First, &customer.Last, &customer.Email)
+        err := rows.Scan(&customer.Id,&customer.First, &customer.Last, &customer.Email)
         if err != nil {
             return nil, err
         }
@@ -100,7 +100,7 @@ func GetCustomerById(connection *sql.DB, id int) (*types.Customer, error) {
 
 func GetCustomerByEmail (connection *sql.DB, email string) (*types.Customer, error){
     var customer types.Customer
-    stmt, err := connection.Prepare("SELECT first_name, last_name, email FROM customer WHERE email=?")
+    stmt, err := connection.Prepare("SELECT * FROM customer WHERE email=?")
     if err != nil {
         return nil, err
     }
@@ -115,7 +115,7 @@ func GetCustomerByEmail (connection *sql.DB, email string) (*types.Customer, err
     // Check if there are any rows returned
     if rows.Next() {
         // Scan the values into the customer struct
-        err := rows.Scan(&customer.First, &customer.Last, &customer.Email)
+        err := rows.Scan(&customer.Id,&customer.First, &customer.Last, &customer.Email)
         if err != nil {
             return nil, err
         }
@@ -125,7 +125,6 @@ func GetCustomerByEmail (connection *sql.DB, email string) (*types.Customer, err
     
     // If no rows were found, return nil for the customer and nil for the error
     return nil, nil
-    
 }
 
 func NumOfOrders (connection *sql.DB) (int, error){
@@ -195,14 +194,14 @@ func GetAllOrders(connection *sql.DB) ([]types.Order, error){
 	return orders, nil
 }
 
-func AddOrder (connection *sql.DB, product_id int, customer_id int, quantity int, donation bool) error{
+func AddOrder (connection *sql.DB, product_id int, customer_id int, quantity int, donation string) error{
     product, _ := GetProductById(connection, product_id)
     if product.Instock >= quantity {
 
         tax := 1.08
         total := float64(quantity)*product.Price*tax
 
-        if donation {
+        if donation == "Yes"{
             total = math.Ceil(total)
         }
     
@@ -262,7 +261,7 @@ func GetAllProducts(connection *sql.DB) ([]types.Product, error){
 
 func GetProductById (connection *sql.DB, product_id int) (*types.Product, error){
     var product types.Product
-    stmt, err := connection.Prepare("SELECT product_name, image_name, price, in_stock FROM product WHERE id=?")
+    stmt, err := connection.Prepare("SELECT * FROM product WHERE id=?")
     if err != nil {
         return nil, err
     }
@@ -276,7 +275,29 @@ func GetProductById (connection *sql.DB, product_id int) (*types.Product, error)
     
     
     if rows.Next() {
-        rows.Scan(&product.Name, &product.Image, &product.Price, &product.Instock)
+        rows.Scan(&product.Id,&product.Name, &product.Image, &product.Price, &product.Instock)
+    }
+
+    return &product, nil
+}
+
+func GetProductByName (connection *sql.DB, product_name string) (*types.Product, error){
+    var product types.Product
+    stmt, err := connection.Prepare("SELECT * FROM product WHERE product_name LIKE ?")
+    if err != nil {
+        return nil, err
+    }
+    defer stmt.Close()
+
+	rows, err := stmt.Query(product_name)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+    
+    
+    if rows.Next() {
+        rows.Scan(&product.Id,&product.Name, &product.Image, &product.Price, &product.Instock)
     }
 
     return &product, nil
