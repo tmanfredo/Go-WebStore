@@ -46,8 +46,9 @@ func main() {
 	// `<link rel="stylesheet" href="assets/styles/styles.css">`
 	e.Static("assets", "./assets")
 
-	storeProducts, _ := db.GetAllProducts(connection);
+	
 	e.GET("/store", func(ctx echo.Context) error {
+		storeProducts, _ := db.GetAllProducts(connection);
 		return Render(ctx, http.StatusOK, templates.Base(templates.Store(storeProducts)))
 	})
 	e.GET("/dbQueries", func(ctx echo.Context) error {
@@ -84,6 +85,7 @@ func main() {
 
 	// Handle the form submission and return the purchase confirmation view
 	e.POST("/purchase", func(ctx echo.Context) error {
+		
 	customer, _ := db.GetCustomerByEmail(connection, ctx.FormValue("email"))
 	welcome := ""
 	if customer == nil {
