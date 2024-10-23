@@ -4,11 +4,14 @@ import (
 "fmt"
 "go-store/types"
 "math"
+"time"
 )
 
 templ Store(products[] types.Product) {
 <div id="store_container">
 	<form id="form" action="/purchase" method="POST">
+	<input type="hidden" name="timestamp" value={ fmt.Sprintf("%d", time.Now().Unix()) }/>
+
 		<fieldset id="info" class="required">
 			<legend>Personal Info</legend>
 

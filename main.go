@@ -13,6 +13,7 @@ import (
 	"database/sql"
 	"go-store/db"
 	"github.com/go-sql-driver/mysql"
+	"time"
 )
 
 var connection *sql.DB
@@ -51,7 +52,7 @@ func main() {
 		storeProducts, _ := db.GetAllProducts(connection);
 		return Render(ctx, http.StatusOK, templates.Base(templates.Store(storeProducts)))
 	})
-	e.GET("/dbQueries", func(ctx echo.Context) error {
+	e.GET("/admin", func(ctx echo.Context) error {
 		
 		customers, _ := db.GetAllCustomers(connection)
 		numCustomers, _ := db.NumOfCustomers(connection)
@@ -62,7 +63,7 @@ func main() {
 		customer3, _ := db.GetCustomerByEmail(connection, "mmouse@mines.edu")
 		customer4, _ := db.GetCustomerByEmail(connection, "tmanfredo@mines.edu")
 		numOrdersNone, _ := db.NumOfOrders(connection)
-		db.AddOrder(connection, 1, 2, 1, "No")
+		db.AddOrder(connection, 1, 2, 1, "No", time.Now().Unix())
 		products, _ := db.GetAllProducts(connection)
 		orders, _ := db.GetAllOrders(connection)
 		numOrders, _ := db.NumOfOrders(connection)
@@ -80,7 +81,7 @@ func main() {
 			NumOrders:     numOrders,
 			NumOrdersNone: numOrdersNone,
 		}
-		return Render(ctx, http.StatusOK, templates.Queries(data))
+		return Render(ctx, http.StatusOK, templates.Admin(data))
 	})
 
 	// Handle the form submission and return the purchase confirmation view
@@ -95,7 +96,7 @@ func main() {
 	} else {
 		welcome = "Welcome back!"
 	}
-		
+	timestamp,_ := strconv.Atoi(ctx.FormValue("timestamp"))
 	quantity, _ := strconv.Atoi(ctx.FormValue("quantity"))
 	product := ctx.FormValue("product")
 	dbProduct,_ := db.GetProductByName(connection, product)
@@ -107,7 +108,7 @@ func main() {
 			Welcome:  welcome,
 			First:    ctx.FormValue("first"),
 			Last:     ctx.FormValue("last"),
-			Email:    ctx.FormValue("email"),
+			Email:    customer.Email,
 			Product:  product,
 			Price:    price,
 			Quantity: quantity,
@@ -116,7 +117,9 @@ func main() {
 			Subtotal: subtotal,
 			Total:    total,
 		}
-		db.AddOrder(connection, dbProduct.Id, customer.Id, quantity, ctx.FormValue("donate"))
+		
+		//add order but only if it isn't already in there (checked inside of AddOrder)
+		db.AddOrder(connection, dbProduct.Id, customer.Id, quantity, ctx.FormValue("donate"), (int64)(timestamp))
 		return Render(ctx, http.StatusOK, templates.Base(templates.PurchaseConfirmation(purchase)))
 	})
 

@@ -194,40 +194,61 @@ func GetAllOrders(connection *sql.DB) ([]types.Order, error){
 	return orders, nil
 }
 
-func AddOrder (connection *sql.DB, product_id int, customer_id int, quantity int, donation string) error{
-    product, _ := GetProductById(connection, product_id)
-    if product.Instock >= quantity {
+func CheckOrderExistence(connection *sql.DB, product_id int, customer_id int, timestamp int64) (bool, error) {
+    stmt, err := connection.Prepare("SELECT product_id, customer_id, timestamp FROM orders WHERE product_id = ? AND customer_id = ? AND timestamp = ?")
+    if err != nil {
+        return false, err
+    }
+    defer stmt.Close()
 
-        tax := 1.08
-        total := float64(quantity)*product.Price*tax
+    rows, err := stmt.Query(product_id, customer_id, timestamp)
+    if err != nil {
+        return false, err
+    }
+    defer rows.Close()
 
-        if donation == "Yes"{
-            total = math.Ceil(total)
-        }
-    
-        productUpdate, err := connection.Prepare("UPDATE product SET in_stock = in_stock - ? WHERE id = ?")
-        if err != nil {
-            return fmt.Errorf("error preparing SQL statement: %w", err)
-        }
-        defer productUpdate.Close()
+    if rows.Next() {
+        return true, nil;
+    }
+    return false, nil;
+}
 
-        _, err = productUpdate.Exec(quantity, product_id)
-        if err != nil {
-            return fmt.Errorf("error executing SQL statement: %w", err)
-        }
-    
+func AddOrder (connection *sql.DB, product_id int, customer_id int, quantity int, donation string, timestamp int64) error{
+    orderExist, _ := CheckOrderExistence(connection, product_id, customer_id, timestamp)
+	if !orderExist {
+        product, _ := GetProductById(connection, product_id)
+        if product.Instock >= quantity {
 
-        stmt, err := connection.Prepare("INSERT INTO orders (product_id, customer_id, quantity, price, tax, donation, timestamp) VALUES (?,?,?,?,?,?,NOW())")
-        if err != nil {
-            return fmt.Errorf("error preparing SQL statement: %w", err)
-        }
-        defer stmt.Close()
-        _, err = stmt.Exec(product_id, customer_id, quantity, product.Price, tax, total)
-        if err != nil {
-            return fmt.Errorf("error executing SQL statement: %w", err)
+            tax := 1.08
+            total := float64(quantity)*product.Price*tax
+
+            if donation == "Yes"{
+                total = math.Ceil(total)
+            }
+        
+            productUpdate, err := connection.Prepare("UPDATE product SET in_stock = in_stock - ? WHERE id = ?")
+            if err != nil {
+                return fmt.Errorf("error preparing SQL statement: %w", err)
+            }
+            defer productUpdate.Close()
+
+            _, err = productUpdate.Exec(quantity, product_id)
+            if err != nil {
+                return fmt.Errorf("error executing SQL statement: %w", err)
+            }
+        
+
+            stmt, err := connection.Prepare("INSERT INTO orders (product_id, customer_id, quantity, price, tax, donation, timestamp) VALUES (?,?,?,?,?,?,?)")
+            if err != nil {
+                return fmt.Errorf("error preparing SQL statement: %w", err)
+            }
+            defer stmt.Close()
+            _, err = stmt.Exec(product_id, customer_id, quantity, product.Price, tax, total, timestamp)
+            if err != nil {
+                return fmt.Errorf("error executing SQL statement: %w", err)
+            }
         }
     }
-
     return nil
     
 }
