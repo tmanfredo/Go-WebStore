@@ -13,7 +13,6 @@ import (
 	"database/sql"
 	"go-store/db"
 	"github.com/go-sql-driver/mysql"
-	"time"
 )
 
 var connection *sql.DB
@@ -55,33 +54,10 @@ func main() {
 	e.GET("/admin", func(ctx echo.Context) error {
 		
 		customers, _ := db.GetAllCustomers(connection)
-		numCustomers, _ := db.NumOfCustomers(connection)
-		customer1, _ := db.GetCustomerById(connection, 1)
-		customer2, _ := db.GetCustomerById(connection, 3)
-		db.AddCustomer(connection, "Thomas", "Manfredo", "tmanfredo@mines.edu")
-		customer2Added, _ := db.GetCustomerById(connection, 3)
-		customer3, _ := db.GetCustomerByEmail(connection, "mmouse@mines.edu")
-		customer4, _ := db.GetCustomerByEmail(connection, "tmanfredo@mines.edu")
-		numOrdersNone, _ := db.NumOfOrders(connection)
-		db.AddOrder(connection, 1, 2, 1, "No", time.Now().Unix())
-		products, _ := db.GetAllProducts(connection)
 		orders, _ := db.GetAllOrders(connection)
 		numOrders, _ := db.NumOfOrders(connection)
-
-		data := types.TemplateData{
-			Products:      products,
-			Customers:     customers,
-			NumCustomers:  numCustomers,
-			Customer1:     customer1,
-			Customer2:     customer2,
-			Customer2Added: customer2Added,
-			Customer3:     customer3,
-			Customer4:     customer4,
-			Orders:        orders,
-			NumOrders:     numOrders,
-			NumOrdersNone: numOrdersNone,
-		}
-		return Render(ctx, http.StatusOK, templates.Admin(data))
+		products, _ := db.GetAllProducts(connection)
+		return Render(ctx, http.StatusOK, templates.Admin(customers, orders, numOrders, products))
 	})
 
 	// Handle the form submission and return the purchase confirmation view
@@ -106,8 +82,8 @@ func main() {
 	total :=  subtotal* tax
 		purchase := types.PurchaseInfo{
 			Welcome:  welcome,
-			First:    ctx.FormValue("first"),
-			Last:     ctx.FormValue("last"),
+			First:    customer.First,
+			Last:     customer.Last,
 			Email:    customer.Email,
 			Product:  product,
 			Price:    price,

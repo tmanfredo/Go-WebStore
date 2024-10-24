@@ -7,7 +7,7 @@ import(
 )
 
 
-templ Admin(data types.TemplateData) {
+templ Admin(customers[] types.Customer, orders[] types.Order, numOrders int, products[] types.Product) {
 
 <head>
     <title>Database Queries</title>
@@ -18,45 +18,18 @@ templ Admin(data types.TemplateData) {
     @header()
 
     <div id="queries">
-        /* Table of 2 */@AllCustomers(data.Customers) 
-        /* 2 */@NumCustomers(data.NumCustomers)
-        /* Mickey */@CustomerById(data.Customer1)
-        /* Doesn't exist */ @CustomerById(data.Customer2)
-        /* Thomas added */@CustomerById(data.Customer2Added)
-        /* Mickey */@CustomerByEmail(data.Customer3)
-        /* Thomas */@CustomerByEmail(data.Customer4)
-        /* 0 */@NumOrders(data.NumOrdersNone)
-        /* 1 order */@AllOrders(data.Orders)
-        /* 1 */@NumOrders(data.NumOrders)
-       /* 3 products with number modified */ @AllProducts(data.Products)
+        @AllCustomers(customers)
+        @AllOrders(orders, numOrders)
+        @AllProducts(products)
     </div>
     @footer()
 </body>
 }
 
-templ AllProducts(products []types.Product){
-<table>
-    <thead>
-        <th>Name</th>
-        <th>Product Image</th>
-        <th>Price</th>
-        <th>InStock</th>
-    </thead>
-    <tbody>
-        for _, product := range products {
-        <tr>
-            <td>{ product.Name }</td>
-            <td><img src={ product.Image }></td>
-            <td>${ fmt.Sprintf("%.2f",product.Price) }</td>
-            <td>{ fmt.Sprintf("%d",product.Instock) }</td>
-        </tr>
-        }
-    </tbody>
 
-</table>
-}
 
 templ AllCustomers(customers []types.Customer){
+<h1>Customers</h1>
 <table>
     <thead>
         <th>First</th>
@@ -76,62 +49,57 @@ templ AllCustomers(customers []types.Customer){
 </table>
 }
 
-templ NumCustomers(numCustomers int){
-<p> Number of Customers: { fmt.Sprintf("%d", numCustomers) } </p>
-}
+templ AllOrders(orders []types.Order, numOrders int){
+<h1>Orders</h1>
+    if numOrders > 0 {
+    <table>
+        <thead>
+            <th>Product Name</th>
+            <th>Customer Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Tax</th>
+            <th>Total (with donation round up if applicable)</th>
+            <th>Timestamp</th>
+        </thead>
+        <tbody>
+            for _, order := range orders {
+            <tr>
+                <td>{ fmt.Sprintf("%s",order.Product_Name)}</td>
+                <td>{ fmt.Sprintf("%s",order.Customer_Name) }</td>
+                <td> { fmt.Sprintf("%d",order.Quantity) }</td>
+                <td>{ fmt.Sprintf("$%.2f",order.Price) }</td>
+                <td>{ fmt.Sprintf("%.2f%%",order.Tax) }</td>
+                <td> { fmt.Sprintf("$%.2f",order.Donation) }</td>
+                <td> { fmt.Sprintf("%s", time.UnixMilli(int64(order.Timestamp)).String()) }</td>
+            </tr>
+            }
+        </tbody>
 
-templ CustomerById(customer *types.Customer){
-if customer == nil {
-<p>This customer's information does not exist!</p>
+    </table>
+    } else {
+        <em>No orders yet...</em>
+    }
 }
-else {
-<p>{ fmt.Sprintf("Name: %s %s; Email: %s", customer.First, customer.Last, customer.Email) } </p>
-}
-}
-
-templ CustomerByEmail(customer *types.Customer) {
-if customer == nil {
-<p>This customer's information does not exist!</p>
-}
-else {
-<p>{ fmt.Sprintf("Name: %s %s; Email: %s", customer.First, customer.Last, customer.Email) } </p>
-}
-}
-
-templ AllOrders(orders []types.Order){
+templ AllProducts(products []types.Product){
+<h1>Products</h1>
 <table>
     <thead>
-        <th>Product Name</th>
-        <th>Customer Name</th>
-        <th>Quantity</th>
+        <th>Name</th>
+        <th>Product</th>
         <th>Price</th>
-        <th>Tax</th>
-        <th>Total (with donation round up if applicable)</th>
-        <th>Timestamp</th>
+        <th>InStock</th>
     </thead>
     <tbody>
-        for _, order := range orders {
+        for _, product := range products {
         <tr>
-            <td>{ fmt.Sprintf("%s",order.Product_Name)}</td>
-            <td>{ fmt.Sprintf("%s",order.Customer_Name) }</td>
-            <td> { fmt.Sprintf("%d",order.Quantity) }</td>
-            <td>{ fmt.Sprintf("$%.2f",order.Price) }</td>
-            <td>{ fmt.Sprintf("%.2f%%",order.Tax) }</td>
-            <td> { fmt.Sprintf("$%.2f",order.Donation) }</td>
-            <td> { fmt.Sprintf("%s", time.UnixMilli(int64(order.Timestamp)).String()) }</td>
+            <td>{ product.Name }</td>
+            <td><img src={ product.Image }></td>
+            <td>${ fmt.Sprintf("%.2f",product.Price) }</td>
+            <td>{ fmt.Sprintf("%d",product.Instock) }</td>
         </tr>
         }
     </tbody>
 
 </table>
-}
-
-templ NumOrders(numOrders int){
-
-if numOrders == 0 {
-<em>No orders yet</em>
-}
-else {
-<p> Number of orders: { fmt.Sprintf("%d", numOrders) } </p>
-}
 }
