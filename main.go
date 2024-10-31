@@ -35,11 +35,6 @@ func main() {
 	
 	defer connection.Close()
 
-
-
-	
-
-	
 	e.Use(etag.Etag())
 
 	// INFO: If you wanted to load a CSS file, you'd do something like this:
@@ -51,6 +46,12 @@ func main() {
 		storeProducts, _ := db.GetAllProducts(connection);
 		return Render(ctx, http.StatusOK, templates.Base(templates.Store(storeProducts)))
 	})
+
+	e.GET("/order_entry", func(ctx echo.Context) error {
+		storeProducts, _ := db.GetAllProducts(connection);
+		return Render(ctx, http.StatusOK, templates.Base(templates.OrderEntry(storeProducts)))
+	})
+
 	e.GET("/admin", func(ctx echo.Context) error {
 		
 		customers, _ := db.GetAllCustomers(connection)

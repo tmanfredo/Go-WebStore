@@ -1,0 +1,50 @@
+package templates
+
+import (
+"fmt"
+"go-store/types"
+"time"
+)
+
+templ OrderEntry(products[] types.Product) {
+ <div id="store_container">
+	<form id="form">
+	<input type="hidden" name="timestamp" value={ fmt.Sprintf("%d", time.Now().Unix()) }/>
+
+		<fieldset id="info" class="required">
+			<legend>Personal Info</legend>
+
+			<label for="firstName">First Name</label>
+			<input type="text" pattern="[A-Za-z' ]+" title="Input only letters, spaces, or '" name="first" required><br>
+			<label for="lastName">Last Name</label>
+			<input type="text" pattern="[A-Za-z' ]+" title="Input only letters, spaces, or '" name="last" required><br>
+			<label for="email">Email</label>
+			<input type="email" name="email" required><br>
+		</fieldset>
+		<fieldset class="required" id="product">
+			<legend>Product Info</legend>
+			<label for="product">
+				<select name="product" id="productSelection" required>
+					<option value="" style="font-weight:bold" disabled selected>Choose a Product</option>
+					for _, product := range products {
+					<option value={ product.Name } data-image={ product.Image } data-stock={ fmt.Sprintf("%d",product.Instock) }>
+						{ fmt.Sprintf("%s: $%.2f", product.Name, product.Price) }
+					</option>
+					}
+
+				</select><br>
+			</label>
+			<label for="quantity">Quantity </label>
+			<input id="quantity" type="number" placeholder="1" min="1" max="100" name="quantity" required><br>
+		</fieldset>
+		<div id="donate">
+			<p>Would you like to round up to donate to the Wawhkyung Fund?</p>
+			<label><input type="radio" name="donate" value="No">No</label>
+			<label><input type="radio" name="donate" value="Yes" checked>Yes</label>
+		</div>
+		<input id="purchase" type="submit" value="Purchase">
+        <button id="clear" value="Clear Fields">Clear Fields</button>
+	</form>
+        
+</div>
+}
