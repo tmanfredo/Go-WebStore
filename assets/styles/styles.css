@@ -83,7 +83,7 @@ select {
 	text-align: center;
 }
 
-#quantity {
+.quantity {
 	width: 3em;
 }
 
@@ -155,4 +155,11 @@ footer {
 	background-color: floralwhite;
 	font-size: small;
 	text-align: center;
+}
+
+#clear {
+	color: black;
+	background-color: rgb(255, 175, 167);
+
+	border: double 2px black;
 }

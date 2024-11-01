@@ -39,17 +39,3 @@ type Customer struct{
 	Last string
 	Email string
 }
-
-type TemplateData struct {
-    Products      []Product
-    Customers     []Customer
-    NumCustomers  int
-    Customer1     *Customer
-    Customer2     *Customer
-    Customer2Added *Customer
-    Customer3     *Customer
-    Customer4     *Customer
-    Orders        []Order
-    NumOrders     int
-	NumOrdersNone int
-}

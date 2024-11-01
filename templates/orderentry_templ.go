@@ -110,7 +110,7 @@ func OrderEntry(products []types.Product) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select><br></label> <label for=\"quantity\">Quantity </label> <input id=\"quantity\" type=\"number\" placeholder=\"1\" min=\"1\" max=\"100\" name=\"quantity\" required><br></fieldset><div id=\"donate\"><p>Would you like to round up to donate to the Wawhkyung Fund?</p><label><input type=\"radio\" name=\"donate\" value=\"No\">No</label> <label><input type=\"radio\" name=\"donate\" value=\"Yes\" checked>Yes</label></div><input id=\"purchase\" type=\"submit\" value=\"Purchase\"> <button id=\"clear\" value=\"Clear Fields\">Clear Fields</button></form></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select><br></label> <label for=\"available\">Available </label> <input class=\"quantity\" id=\"available\" type=\"number\" name=\"available\" readonly><br><label for=\"quantity\">Quantity </label> <input class=\"quantity\" id=\"quantity\" type=\"number\" placeholder=\"1\" min=\"1\" max=\"100\" name=\"quantity\" required><br></fieldset><input id=\"purchase\" type=\"submit\" value=\"Purchase\"> <input id=\"clear\" type=\"reset\" value=\"Clear Fields\"></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
