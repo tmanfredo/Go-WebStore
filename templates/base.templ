@@ -8,13 +8,16 @@ templ Base(content templ.Component) {
 	<title>GameHalt</title>
 	<link rel="stylesheet" href="assets/styles/styles.css">
 	<link rel="icon" type="image/x-icon" href="assets/images/page_icon.ico">
+	<script src="https://unpkg.com/htmx.org@2.0.3"
+		integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
+		crossorigin="anonymous"></script>
 </head>
 
 <body>
 	@header()
 	@content
 	@footer()
-
+ 
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
 			//listener for dropdown
@@ -22,7 +25,9 @@ templ Base(content templ.Component) {
 			dropdown.addEventListener('change', function () {
 				//grab the dropdown menu element
 				const selectedOption = dropdown.options[dropdown.selectedIndex];
-				
+				let imagePath = selectedOption.getAttribute('data-image');
+				const image = document.getElementById("image");
+				image.setAttribute("src", imagePath);
 				//change the max amount of quantity to buy so they can't buy more than are in stock
 				//the database already disallows this but this is so the user knows and so the POST works right
 				let quantity = document.getElementById("quantity");
@@ -34,7 +39,7 @@ templ Base(content templ.Component) {
 
 				available.value = Number(instockValue);
 
-				if (instockValue == 0){
+				if (instockValue == 0) {
 					quantity.disabled = true;
 					purchase.disabled = true;
 				}
@@ -43,10 +48,10 @@ templ Base(content templ.Component) {
 					quantity.setAttribute('max', instockValue.toString());
 					purchase.disabled = false;
 				}
-					;
+				;
 			});
 		});
-	</script>
+	</script> 
 </body>
 
 </html>

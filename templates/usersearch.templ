@@ -1,0 +1,22 @@
+package templates
+
+import(
+    "go-store/types"
+)
+
+templ UserSearch(customers []types.Customer) {
+<table>
+	<tr>
+		<th>First Name</th>
+		<th>Last Name</th>
+		<th>Email</th>
+	</tr>
+	for _, customer := range customers {
+	<tr>
+		<td>{ customer.First }</td>
+		<td>{ customer.Last }</td>
+		<td>{ customer.Email }</td>
+	</tr>
+	}
+</table>
+}

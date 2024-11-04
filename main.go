@@ -13,27 +13,22 @@ import (
 	"database/sql"
 	"go-store/db"
 	"github.com/go-sql-driver/mysql"
+	"fmt"
 )
 
-var connection *sql.DB
-
-func main() {
-	e := echo.New()
-
-
-	// TODO: Fill in your products here with name -> price as the key -> value pair.
-	dbcfg := mysql.Config{
-        User:   "tmanfredo",
-        Passwd: "031820",
+func connect() *sql.DB {
+	config := mysql.Config{
+		User: "tmanfredo",
+		Passwd: "031820",
 		DBName: "tmanfredo",
 	}
 
-	connection, err := sql.Open("mysql", dbcfg.FormatDSN())
-    if err != nil {
-        e.Logger.Fatal(err)
-    }
-	
-	defer connection.Close()
+	sql, _ := sql.Open("mysql", config.FormatDSN())
+	return sql
+}
+
+func main() {
+	e := echo.New()
 
 	e.Use(etag.Etag())
 
@@ -43,17 +38,28 @@ func main() {
 
 	
 	e.GET("/store", func(ctx echo.Context) error {
+		connection := connect()
 		storeProducts, _ := db.GetAllProducts(connection);
 		return Render(ctx, http.StatusOK, templates.Base(templates.Store(storeProducts)))
 	})
 
 	e.GET("/order_entry", func(ctx echo.Context) error {
+		connection := connect()
 		storeProducts, _ := db.GetAllProducts(connection);
-		return Render(ctx, http.StatusOK, templates.Base(templates.OrderEntry(storeProducts)))
+		return Render(ctx, http.StatusOK, templates.OrderEntry(storeProducts))
 	})
 
+	e.GET("/search_results", func(ctx echo.Context) error {
+		connection := connect()
+		searchTerm := ctx.QueryParam("lastName")
+		fmt.Printf("search term: %s\n", searchTerm)
+		customerSearch, _ := db.SearchCustomers(connection, searchTerm)
+		return Render(ctx, http.StatusOK, templates.UserSearch(customerSearch))
+	})
+
+
 	e.GET("/admin", func(ctx echo.Context) error {
-		
+		connection := connect()
 		customers, _ := db.GetAllCustomers(connection)
 		orders, _ := db.GetAllOrders(connection)
 		numOrders, _ := db.NumOfOrders(connection)
@@ -63,7 +69,7 @@ func main() {
 
 	// Handle the form submission and return the purchase confirmation view
 	e.POST("/purchase", func(ctx echo.Context) error {
-		
+		connection := connect()
 	customer, _ := db.GetCustomerByEmail(connection, ctx.FormValue("email"))
 	welcome := ""
 	if customer == nil {

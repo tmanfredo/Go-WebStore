@@ -9,7 +9,35 @@ import (
 
 
 
+func SearchCustomers (connection *sql.DB, searchTerm string) ([]types.Customer, error){
+    stmt, err := connection.Prepare("SELECT * FROM customer WHERE last_name LIKE ?")
+    if err != nil {
+        fmt.Printf("error1: %s",err)
+        return nil, err
+    }
+    defer stmt.Close()
 
+	rows, err := stmt.Query( fmt.Sprintf("%%%s%%", searchTerm))
+    if err != nil {
+        fmt.Printf("error2: %s",err)
+        return nil, err
+    }
+    defer rows.Close()
+
+    var customers []types.Customer
+
+    for rows.Next() {
+        var customer types.Customer
+        err := rows.Scan(&customer.Id, &customer.First, &customer.Last, &customer.Email)
+        if err != nil {
+            fmt.Printf("error3: %s",err)
+            return nil, err
+        }
+        customers = append(customers, customer)
+    }
+
+	return customers, nil
+}
 
 func AddCustomer (connection *sql.DB, first_name string, last_name string, email string){
     stmt, err := connection.Prepare("INSERT INTO customer (first_name, last_name, email) VALUES (?,?,?)")

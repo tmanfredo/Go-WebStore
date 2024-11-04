@@ -35,20 +35,28 @@ func OrderEntry(products []types.Product) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"store_container\"><form id=\"form\"><input type=\"hidden\" name=\"timestamp\" value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><title>GameHalt - Order Entry</title><link rel=\"stylesheet\" href=\"assets/styles/styles.css\"><link rel=\"icon\" type=\"image/x-icon\" href=\"assets/images/page_icon.ico\"><script src=\"https://unpkg.com/htmx.org@2.0.3\"></script></head><body>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = header().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"store_container\"><form id=\"form\" hx-trigger=\"keyup from:#lastName\" hx-get=\"/search_results\" hx-params=\"lastName\" hx-target=\"#searchResults\" hx-swap=\"innerHTML\"><input type=\"hidden\" name=\"timestamp\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", time.Now().Unix()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 12, Col: 83}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 31, Col: 84}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><fieldset id=\"info\" class=\"required\"><legend>Personal Info</legend> <label for=\"firstName\">First Name</label> <input type=\"text\" pattern=\"[A-Za-z&#39; ]+\" title=\"Input only letters, spaces, or &#39;\" name=\"first\" required><br><label for=\"lastName\">Last Name</label> <input type=\"text\" pattern=\"[A-Za-z&#39; ]+\" title=\"Input only letters, spaces, or &#39;\" name=\"last\" required><br><label for=\"email\">Email</label> <input type=\"email\" name=\"email\" required><br></fieldset><fieldset class=\"required\" id=\"product\"><legend>Product Info</legend> <label for=\"product\"><select name=\"product\" id=\"productSelection\" required><option value=\"\" style=\"font-weight:bold\" disabled selected>Choose a Product</option> ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><fieldset id=\"info\" class=\"required\"><legend>Personal Info</legend><label for=\"firstName\">First Name</label> <input id=\"firstName\" type=\"text\" pattern=\"[A-Za-z&#39; ]+\" title=\"Input only letters, spaces, or &#39;\" name=\"firstName\"><br><label for=\"lastName\">Last Name</label> <input id=\"lastName\" type=\"text\" pattern=\"[A-Za-z&#39; ]+\" title=\"Input only letters, spaces, or &#39;\" name=\"lastName\"><br><label for=\"email\">Email</label> <input id=\"email\" type=\"email\" name=\"email\"><br></fieldset><fieldset class=\"required\" id=\"product\"><legend>Product Info</legend> <label for=\"product\"><select name=\"product\" id=\"productSelection\"><option value=\"\" style=\"font-weight:bold\" disabled selected>Choose a Product</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -60,7 +68,7 @@ func OrderEntry(products []types.Product) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(product.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 30, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 53, Col: 33}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -73,7 +81,7 @@ func OrderEntry(products []types.Product) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(product.Image)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 30, Col: 62}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 53, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -86,7 +94,7 @@ func OrderEntry(products []types.Product) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", product.Instock))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 30, Col: 111}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 53, Col: 109}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -99,7 +107,7 @@ func OrderEntry(products []types.Product) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s: $%.2f", product.Name, product.Price))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 31, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 54, Col: 62}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -110,7 +118,15 @@ func OrderEntry(products []types.Product) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select><br></label> <label for=\"available\">Available </label> <input class=\"quantity\" id=\"available\" type=\"number\" name=\"available\" readonly><br><label for=\"quantity\">Quantity </label> <input class=\"quantity\" id=\"quantity\" type=\"number\" placeholder=\"1\" min=\"1\" max=\"100\" name=\"quantity\" required><br></fieldset><input id=\"purchase\" type=\"submit\" value=\"Purchase\"> <input id=\"clear\" type=\"reset\" value=\"Clear Fields\"></form></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select><br></label> <label for=\"available\">Available </label> <input class=\"quantity\" id=\"available\" type=\"number\" name=\"available\" value=\"\" readonly><br><label for=\"quantity\">Quantity </label> <input class=\"quantity\" id=\"quantity\" type=\"number\" placeholder=\"1\" min=\"1\" max=\"100\" name=\"quantity\"><br></fieldset><input id=\"purchase\" type=\"submit\" value=\"Purchase\"> <input id=\"clear\" type=\"reset\" value=\"Clear Fields\"></form><aside id=\"searchResults\"></aside></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = footer().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

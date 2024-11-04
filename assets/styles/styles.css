@@ -108,7 +108,6 @@ select {
 
 aside {
 	grid-column: 2/2;
-	border: 3px solid black;
 	width: 30vw;
 	text-align: center;
 	height: fit-content;
