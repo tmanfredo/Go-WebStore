@@ -25,21 +25,22 @@ templ Base(content templ.Component) {
 			dropdown.addEventListener('change', function () {
 				//grab the dropdown menu element
 				const selectedOption = dropdown.options[dropdown.selectedIndex];
+
+				//set the image for the active product
 				let imagePath = selectedOption.getAttribute('data-image');
 				const image = document.getElementById("image");
 				image.setAttribute("src", imagePath);
+				
+				//get the amount of the product in stock
+				const instock = document.getElementById("instock");
+				let instockValue = selectedOption.getAttribute('data-stock');
+
 				//change the max amount of quantity to buy so they can't buy more than are in stock
 				//the database already disallows this but this is so the user knows and so the POST works right
 				let quantity = document.getElementById("quantity");
 				let purchase = document.getElementById("purchase");
 
-				//get the amount of the product in stock
-				const available = document.getElementById("available");
-				let instockValue = selectedOption.getAttribute('data-stock');
-
-				available.value = Number(instockValue);
-
-				if (instockValue == 0) {
+				if (instockValue == 0){
 					quantity.disabled = true;
 					purchase.disabled = true;
 				}
@@ -48,10 +49,23 @@ templ Base(content templ.Component) {
 					quantity.setAttribute('max', instockValue.toString());
 					purchase.disabled = false;
 				}
-				;
+
+				//change text depending on how much is left
+				if (instockValue == 0) {
+					instock.innerHTML = "SOLD OUT";
+					instock.style.color = "red";
+				}
+				else if (instockValue < 5) {
+					instock.innerHTML = "Only " + instockValue + " left";
+					instock.style.color = "rgb(255, 204, 38)";
+				}
+				//don't display anything if it has more than 5
+				else {
+					instock.innerHTML = "";
+				}
 			});
 		});
-	</script> 
+	</script>
 </body>
 
 </html>

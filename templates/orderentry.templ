@@ -15,42 +15,35 @@ templ OrderEntry(products[] types.Product) {
 	<title>GameHalt - Order Entry</title>
 	<link rel="stylesheet" href="assets/styles/styles.css">
 	<link rel="icon" type="image/x-icon" href="assets/images/page_icon.ico">
-	<script src="https://unpkg.com/htmx.org@2.0.3"></script>
 </head>
 
 <body>
 	@header()
 	<div id="store_container">
-		
-		/* <form hx-trigger="keyup from:#lastName" hx-get="/search_results" hx-params="lastName" hx-target="#searchResults" hx-swap="innerHTML">
-				<label for="lastName">Search by last name:</label>
-				<input type="text" name="lastName" id="lastName" placeholder="Last Name..." />
-		</form> */
-		
-		 <form id="form" hx-trigger="keyup from:#lastName" hx-get="/search_results" hx-params="lastName" hx-target="#searchResults" hx-swap="innerHTML">
+		<form id="form">
 			<input type="hidden" name="timestamp" value={fmt.Sprintf("%d", time.Now().Unix())} />
 
-			 <fieldset id="info" class="required">
+			<fieldset id="info" class="required">
 				<legend>Personal Info</legend>
-				//NOTE: REMOVED REQUIRED FROM FIELDS BECAUSE OTHERWISE IT JUST DOESN'T WORK
-				//NOTE: IF THE PATTERN IS NOT MATCHED IN *ANY* FIELDS, IT ALSO WILL NOT WORK
 				<label for="firstName">First Name</label>
 				<input id="firstName" type="text" pattern="[A-Za-z' ]+" title="Input only letters, spaces, or '"
-					name="firstName" ><br>
+					name="firstName" onkeyup="showHint(this.value, 'first_name')" required><br>
 
 				<label for="lastName">Last Name</label>
-				<input id="lastName" type="text" pattern="[A-Za-z' ]+" title="Input only letters, spaces, or '" name="lastName" ><br>
+				<input id="lastName" type="text" pattern="[A-Za-z' ]+" title="Input only letters, spaces, or '"
+					name="lastName" onkeyup="showHint(this.value, 'last_name')" required><br>
 
 				<label for="email">Email</label>
-				<input id="email" type="email" name="email" ><br>
-			</fieldset> 
+				<input id="email" type="email" name="email"><br>
+			</fieldset>
 			<fieldset class="required" id="product">
 				<legend>Product Info</legend>
 				<label for="product">
-					<select name="product" id="productSelection" >
+					<select name="product" id="productSelection" required>
 						<option value="" style="font-weight:bold" disabled selected>Choose a Product</option>
 						for _, product := range products {
-						<option value={product.Name} data-image={product.Image} data-stock={ fmt.Sprintf("%d", product.Instock)}>
+						<option value={product.Name} data-image={product.Image} data-stock={ fmt.Sprintf("%d",
+							product.Instock)}>
 							{ fmt.Sprintf("%s: $%.2f", product.Name, product.Price) }
 						</option>
 						}
@@ -61,66 +54,60 @@ templ OrderEntry(products[] types.Product) {
 				<label for="available">Available </label>
 				<input class="quantity" id="available" type="number" name="available" value="" readonly><br>
 				<label for="quantity">Quantity </label>
-				<input class="quantity" id="quantity" type="number" placeholder="1" min="1" max="100" name="quantity"
-					><br>
+				<input class="quantity" id="quantity" type="number" placeholder="1" min="1" max="100"
+					name="quantity" required><br>
 
 			</fieldset>
 			<input id="purchase" type="submit" value="Purchase">
 			<input id="clear" type="reset" value="Clear Fields">
-		</form> 
+		</form>
 		<aside id="searchResults"></aside>
 	</div>
-	
+
 	@footer()
 	<script>
-		document.addEventListener('DOMContentLoaded', function () {
-			//listener for dropdown
-			const dropdown = document.getElementById("productSelection");
-			dropdown.addEventListener('change', function () {
-				//grab the dropdown menu element
-				const selectedOption = dropdown.options[dropdown.selectedIndex];
-				let imagePath = selectedOption.getAttribute('data-image');
-				const image = document.getElementById("image");
-				image.setAttribute("src", imagePath);
-				//change the max amount of quantity to buy so they can't buy more than are in stock
-				//the database already disallows this but this is so the user knows and so the POST works right
-				let quantity = document.getElementById("quantity");
-				let purchase = document.getElementById("purchase");
 
-				//get the amount of the product in stock
-				const available = document.getElementById("available");
-				let instockValue = selectedOption.getAttribute('data-stock');
+		//listener for dropdown
+		const dropdown = document.getElementById("productSelection");
+		dropdown.addEventListener('change', function () {
+			//grab the dropdown menu element
+			const selectedOption = dropdown.options[dropdown.selectedIndex];
+			//change the max amount of quantity to buy so they can't buy more than are in stock
+			//the database already disallows this but this is so the user knows and so the POST works right
+			let quantity = document.getElementById("quantity");
+			let purchase = document.getElementById("purchase");
 
-				available.value = Number(instockValue);
+			//get the amount of the product in stock
+			const available = document.getElementById("available");
+			let instockValue = selectedOption.getAttribute('data-stock');
 
-				if (instockValue == 0) {
-					quantity.disabled = true;
-					purchase.disabled = true;
-				}
-				else {
-					quantity.disabled = false;
-					quantity.setAttribute('max', instockValue.toString());
-					purchase.disabled = false;
-				}
-				;
-			});
+			available.value = Number(instockValue);
 
-		/* 	function string showHint(str, field) {
-				if (str.length == 0) {
-					document.getElementById("txtHint").innerHTML = "";
-					return;
-				}
-				const xhttp = new XMLHttpRequest();
-				xhttp.onload = function () {
-					document.getElementById("txtHint").innerHTML =
-						this.responseText;
-				}
-				xhttp.open("GET", "gethint.php?q=" + str);
-				xhttp.send();
-				return field;
-			} */
+			if (instockValue == 0) {
+				quantity.disabled = true;
+				purchase.disabled = true;
+			}
+			else {
+				quantity.disabled = false;
+				quantity.setAttribute('max', instockValue.toString());
+				purchase.disabled = false;
+			}
+			;
 		});
-	</script> 
+
+		function showHint(str, field) {
+			let xhttp = new XMLHttpRequest();
+			let result = document.getElementById("searchResults");
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					result.innerHTML = this.responseText;
+				}
+
+			};
+			xhttp.open("GET", "search_results?field=" + field + "&input=" + str, true);
+			xhttp.send();
+		}
+	</script>
 </body>
 
 </html>

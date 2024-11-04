@@ -32,8 +32,6 @@ func main() {
 
 	e.Use(etag.Etag())
 
-	// INFO: If you wanted to load a CSS file, you'd do something like this:
-	// `<link rel="stylesheet" href="assets/styles/styles.css">`
 	e.Static("assets", "./assets")
 
 	
@@ -51,9 +49,9 @@ func main() {
 
 	e.GET("/search_results", func(ctx echo.Context) error {
 		connection := connect()
-		searchTerm := ctx.QueryParam("lastName")
-		fmt.Printf("search term: %s\n", searchTerm)
-		customerSearch, _ := db.SearchCustomers(connection, searchTerm)
+		input := ctx.QueryParam("field")
+		searchTerm := ctx.QueryParam("input")
+		customerSearch, _ := db.SearchCustomers(connection, input, searchTerm)
 		return Render(ctx, http.StatusOK, templates.UserSearch(customerSearch))
 	})
 
