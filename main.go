@@ -13,7 +13,6 @@ import (
 	"database/sql"
 	"go-store/db"
 	"github.com/go-sql-driver/mysql"
-	"fmt"
 )
 
 func connect() *sql.DB {
@@ -102,6 +101,44 @@ func main() {
 		//add order but only if it isn't already in there (checked inside of AddOrder)
 		db.AddOrder(connection, dbProduct.Id, customer.Id, quantity, ctx.FormValue("donate"), (int64)(timestamp))
 		return Render(ctx, http.StatusOK, templates.Base(templates.PurchaseConfirmation(purchase)))
+	})
+
+	e.POST("/order_placed", func(ctx echo.Context) error {
+		connection := connect()
+		customer, _ := db.GetCustomerByEmail(connection, ctx.FormValue("email"))
+		welcome := ""
+		if customer == nil {
+			db.AddCustomer(connection, ctx.FormValue("first"), ctx.FormValue("last"), ctx.FormValue("email"))
+			customer, _ = db.GetCustomerByEmail(connection, ctx.FormValue("email"))
+			welcome = "Looks like you're new! An account has been made for you."
+		} else {
+			welcome = "Welcome back!"
+		}
+		timestamp,_ := strconv.Atoi(ctx.FormValue("timestamp"))
+		quantity, _ := strconv.Atoi(ctx.FormValue("quantity"))
+		product := ctx.FormValue("product")
+		dbProduct,_ := db.GetProductByName(connection, product)
+		price := dbProduct.Price 
+		tax := 1.08
+		subtotal :=  (price * float64(quantity))
+		total :=  subtotal* tax
+			purchase := types.PurchaseInfo{
+				Welcome:  welcome,
+				First:    customer.First,
+				Last:     customer.Last,
+				Email:    customer.Email,
+				Product:  product,
+				Price:    price,
+				Quantity: quantity,
+				Donate:   ctx.FormValue("donate"),
+				Tax:      tax,
+				Subtotal: subtotal,
+				Total:    total,
+			}
+		
+		//add order but only if it isn't already in there (checked inside of AddOrder)
+		db.AddOrder(connection, dbProduct.Id, customer.Id, quantity, ctx.FormValue("donate"), (int64)(timestamp))
+		return Render(ctx, http.StatusOK, templates.OrderPlaced(purchase))
 	})
 
 	e.Logger.Fatal(e.Start(":8000"))

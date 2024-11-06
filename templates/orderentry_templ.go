@@ -35,7 +35,7 @@ func OrderEntry(products []types.Product) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><title>GameHalt - Order Entry</title><link rel=\"stylesheet\" href=\"assets/styles/styles.css\"><link rel=\"icon\" type=\"image/x-icon\" href=\"assets/images/page_icon.ico\"></head><body>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><title>GameHalt - Order Entry</title><link rel=\"stylesheet\" href=\"assets/styles/styles.css\"><link rel=\"icon\" type=\"image/x-icon\" href=\"assets/images/page_icon.ico\"><script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js\"></script></head><body>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -43,14 +43,14 @@ func OrderEntry(products []types.Product) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"store_container\"><form id=\"form\"><input type=\"hidden\" name=\"timestamp\" value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"store_container\"><form id=\"form\" action=\"/order_placed\" method=\"POST\"><input type=\"hidden\" name=\"timestamp\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", time.Now().Unix()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 24, Col: 84}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 25, Col: 84}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -68,7 +68,7 @@ func OrderEntry(products []types.Product) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(product.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 45, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 46, Col: 33}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -81,7 +81,7 @@ func OrderEntry(products []types.Product) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(product.Image)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 45, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 46, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -95,7 +95,7 @@ func OrderEntry(products []types.Product) templ.Component {
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d",
 				product.Instock))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 46, Col: 23}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 47, Col: 23}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -108,7 +108,7 @@ func OrderEntry(products []types.Product) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s: $%.2f", product.Name, product.Price))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 47, Col: 62}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 48, Col: 62}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -127,7 +127,66 @@ func OrderEntry(products []types.Product) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\r\n\r\n\t\t//listener for dropdown\r\n\t\tconst dropdown = document.getElementById(\"productSelection\");\r\n\t\tdropdown.addEventListener('change', function () {\r\n\t\t\t//grab the dropdown menu element\r\n\t\t\tconst selectedOption = dropdown.options[dropdown.selectedIndex];\r\n\t\t\t//change the max amount of quantity to buy so they can't buy more than are in stock\r\n\t\t\t//the database already disallows this but this is so the user knows and so the POST works right\r\n\t\t\tlet quantity = document.getElementById(\"quantity\");\r\n\t\t\tlet purchase = document.getElementById(\"purchase\");\r\n\r\n\t\t\t//get the amount of the product in stock\r\n\t\t\tconst available = document.getElementById(\"available\");\r\n\t\t\tlet instockValue = selectedOption.getAttribute('data-stock');\r\n\r\n\t\t\tavailable.value = Number(instockValue);\r\n\r\n\t\t\tif (instockValue == 0) {\r\n\t\t\t\tquantity.disabled = true;\r\n\t\t\t\tpurchase.disabled = true;\r\n\t\t\t}\r\n\t\t\telse {\r\n\t\t\t\tquantity.disabled = false;\r\n\t\t\t\tquantity.setAttribute('max', instockValue.toString());\r\n\t\t\t\tpurchase.disabled = false;\r\n\t\t\t}\r\n\t\t\t;\r\n\t\t});\r\n\r\n\t\tfunction showHint(str, field) {\r\n\t\t\tlet xhttp = new XMLHttpRequest();\r\n\t\t\tlet result = document.getElementById(\"searchResults\");\r\n\t\t\txhttp.onreadystatechange = function () {\r\n\t\t\t\tif (this.readyState == 4 && this.status == 200) {\r\n\t\t\t\t\tresult.innerHTML = this.responseText;\r\n\t\t\t\t}\r\n\r\n\t\t\t};\r\n\t\t\txhttp.open(\"GET\", \"search_results?field=\" + field + \"&input=\" + str, true);\r\n\t\t\txhttp.send();\r\n\t\t}\r\n\t</script></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\r\n\t\t/* $(\"#form\").submit(function (e) {\r\n\t\t\te.preventDefault();\r\n\t\t}); */\r\n\t\t//listener for dropdown\r\n\t\tconst dropdown = document.getElementById(\"productSelection\");\r\n\t\tdropdown.addEventListener('change', function () {\r\n\t\t\t//grab the dropdown menu element\r\n\t\t\tconst selectedOption = dropdown.options[dropdown.selectedIndex];\r\n\t\t\t//change the max amount of quantity to buy so they can't buy more than are in stock\r\n\t\t\t//the database already disallows this but this is so the user knows and so the POST works right\r\n\t\t\tlet quantity = document.getElementById(\"quantity\");\r\n\t\t\tlet purchase = document.getElementById(\"purchase\");\r\n\r\n\t\t\t//get the amount of the product in stock\r\n\t\t\tconst available = document.getElementById(\"available\");\r\n\t\t\tlet instockValue = selectedOption.getAttribute('data-stock');\r\n\r\n\t\t\tavailable.value = Number(instockValue);\r\n\r\n\t\t\tif (instockValue == 0) {\r\n\t\t\t\tquantity.disabled = true;\r\n\t\t\t\tpurchase.disabled = true;\r\n\t\t\t}\r\n\t\t\telse {\r\n\t\t\t\tquantity.disabled = false;\r\n\t\t\t\tquantity.setAttribute('max', instockValue.toString());\r\n\t\t\t\tpurchase.disabled = false;\r\n\t\t\t}\r\n\t\t\t;\r\n\t\t});\r\n\r\n\t\tfunction showHint(str, field) {\r\n\t\t\tlet xhttp = new XMLHttpRequest();\r\n\t\t\tlet result = document.getElementById(\"searchResults\");\r\n\t\t\txhttp.onreadystatechange = function () {\r\n\t\t\t\tif (this.readyState == 4 && this.status == 200) {\r\n\t\t\t\t\tresult.innerHTML = this.responseText;\r\n\t\t\t\t\tsetTimeout(highlight_row, 0);\r\n\t\t\t\t}\r\n\r\n\t\t\t};\r\n\t\t\txhttp.open(\"GET\", \"search_results?field=\" + field + \"&input=\" + str, true);\r\n\t\t\txhttp.send();\r\n\t\t}\r\n\r\n\t\tfunction highlight_row() {\r\n\t\t\tvar table = document.getElementById('search_table');\r\n\t\t\tvar cells = table.getElementsByTagName('td');\r\n\r\n\t\t\tfor (var i = 0; i < cells.length; i++) {\r\n\t\t\t\t// Take each cell\r\n\t\t\t\tvar cell = cells[i];\r\n\t\t\t\t// do something on onclick event for cell\r\n\t\t\t\tcell.onclick = function () {\r\n\t\t\t\t\t// Get the row id where the cell exists\r\n\t\t\t\t\tvar rowId = this.parentNode.rowIndex;\r\n\r\n\t\t\t\t\tvar rowsNotSelected = table.getElementsByTagName('tr');\r\n\t\t\t\t\tfor (var row = 0; row < rowsNotSelected.length; row++) {\r\n\t\t\t\t\t\trowsNotSelected[row].style.backgroundColor = \"\";\r\n\t\t\t\t\t\trowsNotSelected[row].classList.remove('selected');\r\n\t\t\t\t\t}\r\n\t\t\t\t\tvar rowSelected = table.getElementsByTagName('tr')[rowId];\r\n\t\t\t\t\trowSelected.style.backgroundColor = \"yellow\";\r\n\t\t\t\t\trowSelected.className += \" selected\";\r\n\r\n\t\t\t\t\tdocument.getElementById(\"firstName\").value = rowSelected.cells[0].innerHTML;\r\n\t\t\t\t\tdocument.getElementById(\"lastName\").value = rowSelected.cells[1].innerHTML;\r\n\t\t\t\t\tdocument.getElementById(\"email\").value = rowSelected.cells[2].innerHTML;\r\n\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\r\n\r\n\t</script></body></html>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return templ_7745c5c3_Err
+	})
+}
+
+func OrderPlaced(purchaseInformation types.PurchaseInfo) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var7 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var7 == nil {
+			templ_7745c5c3_Var7 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><title>GameHalt - Order Entry</title><link rel=\"stylesheet\" href=\"assets/styles/styles.css\"><link rel=\"icon\" type=\"image/x-icon\" href=\"assets/images/page_icon.ico\"><script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js\"></script></head><body>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = header().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>Order submitted for ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var8 string
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s %s; %d copies of %s; Total: %.2f", purchaseInformation.First, purchaseInformation.Last,
+			purchaseInformation.Quantity, purchaseInformation.Product, purchaseInformation.Total))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/orderentry.templ`, Line: 165, Col: 87}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = footer().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -39,7 +39,7 @@ func UserSearch(customers []types.Customer) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<table><tr><th>First Name</th><th>Last Name</th><th>Email</th></tr>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<table id=\"search_table\"><tr><th>First Name</th><th>Last Name</th><th>Email</th></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

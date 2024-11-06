@@ -141,6 +141,10 @@ td img {
 	width: 10vw;
 }
 
+#search_table td {
+	cursor: grab;
+}
+
 #queries {
 	padding: 2em;
 	background-color: rgb(201, 229, 254);

@@ -15,12 +15,13 @@ templ OrderEntry(products[] types.Product) {
 	<title>GameHalt - Order Entry</title>
 	<link rel="stylesheet" href="assets/styles/styles.css">
 	<link rel="icon" type="image/x-icon" href="assets/images/page_icon.ico">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 
 <body>
 	@header()
 	<div id="store_container">
-		<form id="form">
+		<form id="form" action="/order_placed" method="POST">
 			<input type="hidden" name="timestamp" value={fmt.Sprintf("%d", time.Now().Unix())} />
 
 			<fieldset id="info" class="required">
@@ -54,8 +55,8 @@ templ OrderEntry(products[] types.Product) {
 				<label for="available">Available </label>
 				<input class="quantity" id="available" type="number" name="available" value="" readonly><br>
 				<label for="quantity">Quantity </label>
-				<input class="quantity" id="quantity" type="number" placeholder="1" min="1" max="100"
-					name="quantity" required><br>
+				<input class="quantity" id="quantity" type="number" placeholder="1" min="1" max="100" name="quantity"
+					required><br>
 
 			</fieldset>
 			<input id="purchase" type="submit" value="Purchase">
@@ -66,7 +67,9 @@ templ OrderEntry(products[] types.Product) {
 
 	@footer()
 	<script>
-
+		/* $("#form").submit(function (e) {
+			e.preventDefault();
+		}); */
 		//listener for dropdown
 		const dropdown = document.getElementById("productSelection");
 		dropdown.addEventListener('change', function () {
@@ -101,13 +104,66 @@ templ OrderEntry(products[] types.Product) {
 			xhttp.onreadystatechange = function () {
 				if (this.readyState == 4 && this.status == 200) {
 					result.innerHTML = this.responseText;
+					setTimeout(highlight_row, 0);
 				}
 
 			};
 			xhttp.open("GET", "search_results?field=" + field + "&input=" + str, true);
 			xhttp.send();
 		}
+
+		function highlight_row() {
+			var table = document.getElementById('search_table');
+			var cells = table.getElementsByTagName('td');
+
+			for (var i = 0; i < cells.length; i++) {
+				// Take each cell
+				var cell = cells[i];
+				// do something on onclick event for cell
+				cell.onclick = function () {
+					// Get the row id where the cell exists
+					var rowId = this.parentNode.rowIndex;
+
+					var rowsNotSelected = table.getElementsByTagName('tr');
+					for (var row = 0; row < rowsNotSelected.length; row++) {
+						rowsNotSelected[row].style.backgroundColor = "";
+						rowsNotSelected[row].classList.remove('selected');
+					}
+					var rowSelected = table.getElementsByTagName('tr')[rowId];
+					rowSelected.style.backgroundColor = "yellow";
+					rowSelected.className += " selected";
+
+					document.getElementById("firstName").value = rowSelected.cells[0].innerHTML;
+					document.getElementById("lastName").value = rowSelected.cells[1].innerHTML;
+					document.getElementById("email").value = rowSelected.cells[2].innerHTML;
+
+				}
+			}
+		}
+
+
 	</script>
+</body>
+
+</html>
+}
+
+templ OrderPlaced(purchaseInformation types.PurchaseInfo) {
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>GameHalt - Order Entry</title>
+	<link rel="stylesheet" href="assets/styles/styles.css">
+	<link rel="icon" type="image/x-icon" href="assets/images/page_icon.ico">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+
+<body>
+@header()
+	<p>Order submitted for { fmt.Sprintf("%s %s; %d copies of %s; Total: %.2f", purchaseInformation.First, purchaseInformation.Last, 
+		purchaseInformation.Quantity, purchaseInformation.Product, purchaseInformation.Total) }</p>
+@footer()
 </body>
 
 </html>
