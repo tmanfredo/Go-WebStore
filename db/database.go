@@ -10,9 +10,7 @@ import (
 
 
 func SearchCustomers (connection *sql.DB, input string, searchTerm string) ([]types.Customer, error){
-    /* if searchTerm == "" {
-        return nil, nil
-    } else { */
+    
         query := fmt.Sprintf("SELECT * FROM customer WHERE %s LIKE ?", input)
         stmt, err := connection.Prepare(query)
         if err != nil {
@@ -42,7 +40,6 @@ func SearchCustomers (connection *sql.DB, input string, searchTerm string) ([]ty
         }
 
         return customers, nil
-   // }
 }
 
 func AddCustomer (connection *sql.DB, first_name string, last_name string, email string){

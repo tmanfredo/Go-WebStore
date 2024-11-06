@@ -15,6 +15,14 @@ type PurchaseInfo struct {
 	Total float64
 }
 
+type OrderInfo struct {
+	First string
+	Last string
+	Quantity int
+	Product string
+	Total float64
+}
+
 type Product struct{
 	Id int
 	Name string

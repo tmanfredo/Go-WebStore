@@ -22,7 +22,7 @@ templ OrderEntry(products[] types.Product) {
 	@header()
 	<div id="store_container">
 		<form id="form" action="/order_placed" method="POST">
-			<input type="hidden" name="timestamp" value={fmt.Sprintf("%d", time.Now().Unix())} />
+			<input id="timestamp" type="hidden" name="timestamp" value={fmt.Sprintf("%d", time.Now().Unix())} />
 
 			<fieldset id="info" class="required">
 				<legend>Personal Info</legend>
@@ -62,14 +62,33 @@ templ OrderEntry(products[] types.Product) {
 			<input id="purchase" type="submit" value="Purchase">
 			<input id="clear" type="reset" value="Clear Fields">
 		</form>
-		<aside id="searchResults"></aside>
+		<aside id="aside"></aside>
 	</div>
 
 	@footer()
 	<script>
-		/* $("#form").submit(function (e) {
+		const form = document.getElementById("form");
+		$("#form").submit(function (e) {
 			e.preventDefault();
-		}); */
+			first = $('#firstName').val();
+			last = $('#lastName').val();
+			email = $('#email').val();
+			quantity = $('#quantity').val();
+			product = $('#productSelection').val();
+			timestamp = $('#timestamp').val();
+			let xhttp = new XMLHttpRequest();
+			let result = document.getElementById("aside");
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					result.innerHTML = this.responseText;
+				}
+
+			};
+			xhttp.open("GET", "order_placed?first=" + first + "&last=" + last + "&email=" + email + "&quantity=" + quantity + "&product=" + product + "&timestamp=" + timestamp, true);
+			xhttp.send();
+			$('#form')[0].reset();
+			
+		});
 		//listener for dropdown
 		const dropdown = document.getElementById("productSelection");
 		dropdown.addEventListener('change', function () {
@@ -95,12 +114,12 @@ templ OrderEntry(products[] types.Product) {
 				quantity.setAttribute('max', instockValue.toString());
 				purchase.disabled = false;
 			}
-			;
+
 		});
 
 		function showHint(str, field) {
 			let xhttp = new XMLHttpRequest();
-			let result = document.getElementById("searchResults");
+			let result = document.getElementById("aside");
 			xhttp.onreadystatechange = function () {
 				if (this.readyState == 4 && this.status == 200) {
 					result.innerHTML = this.responseText;
@@ -141,30 +160,16 @@ templ OrderEntry(products[] types.Product) {
 			}
 		}
 
-
 	</script>
 </body>
 
 </html>
 }
 
-templ OrderPlaced(purchaseInformation types.PurchaseInfo) {
-<!DOCTYPE html>
-<html>
+templ OrderPlaced(orderInfo types.OrderInfo) {
 
-<head>
-	<title>GameHalt - Order Entry</title>
-	<link rel="stylesheet" href="assets/styles/styles.css">
-	<link rel="icon" type="image/x-icon" href="assets/images/page_icon.ico">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-</head>
+<p>Order submitted for { fmt.Sprintf("%s %s; %d copies of %s; Total: %.2f", orderInfo.First,
+	orderInfo.Last,
+	orderInfo.Quantity, orderInfo.Product, orderInfo.Total) }</p>
 
-<body>
-@header()
-	<p>Order submitted for { fmt.Sprintf("%s %s; %d copies of %s; Total: %.2f", purchaseInformation.First, purchaseInformation.Last, 
-		purchaseInformation.Quantity, purchaseInformation.Product, purchaseInformation.Total) }</p>
-@footer()
-</body>
-
-</html>
 }
