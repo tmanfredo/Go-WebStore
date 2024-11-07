@@ -87,7 +87,7 @@ templ OrderEntry(products[] types.Product) {
 			xhttp.open("GET", "order_placed?first=" + first + "&last=" + last + "&email=" + email + "&quantity=" + quantity + "&product=" + product + "&timestamp=" + timestamp, true);
 			xhttp.send();
 			$('#form')[0].reset();
-			
+
 		});
 		//listener for dropdown
 		const dropdown = document.getElementById("productSelection");
@@ -101,19 +101,27 @@ templ OrderEntry(products[] types.Product) {
 
 			//get the amount of the product in stock
 			const available = document.getElementById("available");
-			let instockValue = selectedOption.getAttribute('data-stock');
+			let xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					available.value = this.responseText;
+					if (available.value == 0) {
+						quantity.disabled = true;
+						purchase.disabled = true;
+					}
+					else {
+						quantity.disabled = false;
+						quantity.setAttribute('max', available.value);
+						purchase.disabled = false;
+					}
 
-			available.value = Number(instockValue);
+				}
 
-			if (instockValue == 0) {
-				quantity.disabled = true;
-				purchase.disabled = true;
-			}
-			else {
-				quantity.disabled = false;
-				quantity.setAttribute('max', instockValue.toString());
-				purchase.disabled = false;
-			}
+			};
+			xhttp.open("GET", "product_quantity?product=" + selectedOption.value + "&timestamp=" + timestamp, true);
+			xhttp.send();
+
+
 
 		});
 

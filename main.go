@@ -13,6 +13,7 @@ import (
 	"database/sql"
 	"go-store/db"
 	"github.com/go-sql-driver/mysql"
+	"fmt"
 )
 
 func connect() *sql.DB {
@@ -54,6 +55,12 @@ func main() {
 		return Render(ctx, http.StatusOK, templates.UserSearch(customerSearch))
 	})
 
+	e.GET("/product_quantity", func(ctx echo.Context) error {
+		connection := connect()
+		product, _ := db.GetProductByName(connection, ctx.QueryParam("product"))
+		fmt.Printf("%d",product.Instock)
+		return ctx.String(http.StatusOK, fmt.Sprintf("%d", product.Instock))
+	})
 
 	e.GET("/admin", func(ctx echo.Context) error {
 		connection := connect()
