@@ -13,46 +13,57 @@ import (
 	"database/sql"
 	"go-store/db"
 	"github.com/go-sql-driver/mysql"
+	"fmt"
 )
 
-var connection *sql.DB
+func connect() *sql.DB {
+	config := mysql.Config{
+		User: "tmanfredo",
+		Passwd: "031820",
+		DBName: "tmanfredo",
+	}
+
+	sql, _ := sql.Open("mysql", config.FormatDSN())
+	return sql
+}
 
 func main() {
 	e := echo.New()
 
-
-	// TODO: Fill in your products here with name -> price as the key -> value pair.
-	dbcfg := mysql.Config{
-        User:   "tmanfredo",
-        Passwd: "031820",
-		DBName: "tmanfredo",
-	}
-
-	connection, err := sql.Open("mysql", dbcfg.FormatDSN())
-    if err != nil {
-        e.Logger.Fatal(err)
-    }
-	
-	defer connection.Close()
-
-
-
-	
-
-	
 	e.Use(etag.Etag())
 
-	// INFO: If you wanted to load a CSS file, you'd do something like this:
-	// `<link rel="stylesheet" href="assets/styles/styles.css">`
 	e.Static("assets", "./assets")
 
 	
 	e.GET("/store", func(ctx echo.Context) error {
+		connection := connect()
 		storeProducts, _ := db.GetAllProducts(connection);
 		return Render(ctx, http.StatusOK, templates.Base(templates.Store(storeProducts)))
 	})
+
+	e.GET("/order_entry", func(ctx echo.Context) error {
+		connection := connect()
+		storeProducts, _ := db.GetAllProducts(connection);
+		return Render(ctx, http.StatusOK, templates.OrderEntry(storeProducts))
+	})
+
+	e.GET("/search_results", func(ctx echo.Context) error {
+		connection := connect()
+		input := ctx.QueryParam("field")
+		searchTerm := ctx.QueryParam("input")
+		customerSearch, _ := db.SearchCustomers(connection, input, searchTerm)
+		return Render(ctx, http.StatusOK, templates.UserSearch(customerSearch))
+	})
+
+	e.GET("/product_quantity", func(ctx echo.Context) error {
+		connection := connect()
+		product, _ := db.GetProductByName(connection, ctx.QueryParam("product"))
+		fmt.Printf("%d",product.Instock)
+		return ctx.String(http.StatusOK, fmt.Sprintf("%d", product.Instock))
+	})
+
 	e.GET("/admin", func(ctx echo.Context) error {
-		
+		connection := connect()
 		customers, _ := db.GetAllCustomers(connection)
 		orders, _ := db.GetAllOrders(connection)
 		numOrders, _ := db.NumOfOrders(connection)
@@ -62,7 +73,7 @@ func main() {
 
 	// Handle the form submission and return the purchase confirmation view
 	e.POST("/purchase", func(ctx echo.Context) error {
-		
+		connection := connect()
 	customer, _ := db.GetCustomerByEmail(connection, ctx.FormValue("email"))
 	welcome := ""
 	if customer == nil {
@@ -97,6 +108,32 @@ func main() {
 		//add order but only if it isn't already in there (checked inside of AddOrder)
 		db.AddOrder(connection, dbProduct.Id, customer.Id, quantity, ctx.FormValue("donate"), (int64)(timestamp))
 		return Render(ctx, http.StatusOK, templates.Base(templates.PurchaseConfirmation(purchase)))
+	})
+
+	e.GET("/order_placed", func(ctx echo.Context) error {
+		connection := connect()
+		customer, _ := db.GetCustomerByEmail(connection, ctx.QueryParam("email"))
+		if customer == nil {
+			db.AddCustomer(connection, ctx.QueryParam("first"), ctx.QueryParam("last"), ctx.QueryParam("email"))
+			customer, _ = db.GetCustomerByEmail(connection, ctx.QueryParam("email"))
+		} 
+		quantity, _ := strconv.Atoi(ctx.QueryParam("quantity"))
+		timestamp,_ := strconv.Atoi(ctx.QueryParam("timestamp"))
+		dbProduct,_ := db.GetProductByName(connection, ctx.QueryParam("product"))
+		price := dbProduct.Price 
+		tax := 1.08
+		total :=  (price * float64(quantity)) * tax
+		order := types.OrderInfo {
+			First: ctx.QueryParam("first"),
+			Last: ctx.QueryParam("last"),
+			Quantity: quantity,
+			Product: ctx.QueryParam("product"),
+			Total: total,
+		}
+		
+		//add order but only if it isn't already in there (checked inside of AddOrder)
+		db.AddOrder(connection, dbProduct.Id, customer.Id, quantity, "No", (int64)(timestamp))
+		return Render(ctx, http.StatusOK, templates.OrderPlaced(order))
 	})
 
 	e.Logger.Fatal(e.Start(":8000"))

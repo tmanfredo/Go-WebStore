@@ -15,6 +15,14 @@ type PurchaseInfo struct {
 	Total float64
 }
 
+type OrderInfo struct {
+	First string
+	Last string
+	Quantity int
+	Product string
+	Total float64
+}
+
 type Product struct{
 	Id int
 	Name string
@@ -38,18 +46,4 @@ type Customer struct{
 	First string
 	Last string
 	Email string
-}
-
-type TemplateData struct {
-    Products      []Product
-    Customers     []Customer
-    NumCustomers  int
-    Customer1     *Customer
-    Customer2     *Customer
-    Customer2Added *Customer
-    Customer3     *Customer
-    Customer4     *Customer
-    Orders        []Order
-    NumOrders     int
-	NumOrdersNone int
 }

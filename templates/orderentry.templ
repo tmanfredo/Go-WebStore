@@ -1,0 +1,183 @@
+package templates
+
+import (
+"fmt"
+"go-store/types"
+"time"
+)
+
+templ OrderEntry(products[] types.Product) {
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>GameHalt - Order Entry</title>
+	<link rel="stylesheet" href="assets/styles/styles.css">
+	<link rel="icon" type="image/x-icon" href="assets/images/page_icon.ico">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+
+<body>
+	@header()
+	<div id="store_container">
+		<form id="form" action="/order_placed" method="POST">
+			<input id="timestamp" type="hidden" name="timestamp" value={fmt.Sprintf("%d", time.Now().Unix())} />
+
+			<fieldset id="info" class="required">
+				<legend>Personal Info</legend>
+				<label for="firstName">First Name</label>
+				<input id="firstName" type="text" pattern="[A-Za-z' ]+" title="Input only letters, spaces, or '"
+					name="firstName" onkeyup="showHint(this.value, 'first_name')" required><br>
+
+				<label for="lastName">Last Name</label>
+				<input id="lastName" type="text" pattern="[A-Za-z' ]+" title="Input only letters, spaces, or '"
+					name="lastName" onkeyup="showHint(this.value, 'last_name')" required><br>
+
+				<label for="email">Email</label>
+				<input id="email" type="email" name="email"><br>
+			</fieldset>
+			<fieldset class="required" id="product">
+				<legend>Product Info</legend>
+				<label for="product">
+					<select name="product" id="productSelection" required>
+						<option value="" style="font-weight:bold" disabled selected>Choose a Product</option>
+						for _, product := range products {
+						<option value={product.Name} data-image={product.Image} data-stock={ fmt.Sprintf("%d",
+							product.Instock)}>
+							{ fmt.Sprintf("%s: $%.2f", product.Name, product.Price) }
+						</option>
+						}
+
+					</select><br>
+				</label>
+
+				<label for="available">Available </label>
+				<input class="quantity" id="available" type="number" name="available" value="" readonly><br>
+				<label for="quantity">Quantity </label>
+				<input class="quantity" id="quantity" type="number" placeholder="1" min="1" max="100" name="quantity"
+					required><br>
+
+			</fieldset>
+			<input id="purchase" type="submit" value="Purchase">
+			<input id="clear" type="reset" value="Clear Fields">
+		</form>
+		<aside id="aside"></aside>
+	</div>
+
+	@footer()
+	<script>
+		const form = document.getElementById("form");
+		$("#form").submit(function (e) {
+			e.preventDefault();
+			first = $('#firstName').val();
+			last = $('#lastName').val();
+			email = $('#email').val();
+			quantity = $('#quantity').val();
+			product = $('#productSelection').val();
+			timestamp = $('#timestamp').val();
+			let xhttp = new XMLHttpRequest();
+			let result = document.getElementById("aside");
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					result.innerHTML = this.responseText;
+				}
+
+			};
+			xhttp.open("GET", "order_placed?first=" + first + "&last=" + last + "&email=" + email + "&quantity=" + quantity + "&product=" + product + "&timestamp=" + timestamp, true);
+			xhttp.send();
+			$('#form')[0].reset();
+
+		});
+		//listener for dropdown
+		const dropdown = document.getElementById("productSelection");
+		dropdown.addEventListener('change', function () {
+			//grab the dropdown menu element
+			const selectedOption = dropdown.options[dropdown.selectedIndex];
+			//change the max amount of quantity to buy so they can't buy more than are in stock
+			//the database already disallows this but this is so the user knows and so the POST works right
+			let quantity = document.getElementById("quantity");
+			let purchase = document.getElementById("purchase");
+
+			//get the amount of the product in stock
+			const available = document.getElementById("available");
+			let xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					available.value = this.responseText;
+					if (available.value == 0) {
+						quantity.disabled = true;
+						purchase.disabled = true;
+					}
+					else {
+						quantity.disabled = false;
+						quantity.setAttribute('max', available.value);
+						purchase.disabled = false;
+					}
+
+				}
+
+			};
+			xhttp.open("GET", "product_quantity?product=" + selectedOption.value + "&timestamp=" + timestamp, true);
+			xhttp.send();
+
+
+
+		});
+
+		function showHint(str, field) {
+			let xhttp = new XMLHttpRequest();
+			let result = document.getElementById("aside");
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					result.innerHTML = this.responseText;
+					setTimeout(highlight_row, 0);
+				}
+
+			};
+			xhttp.open("GET", "search_results?field=" + field + "&input=" + str, true);
+			xhttp.send();
+		}
+
+		function highlight_row() {
+			var table = document.getElementById('search_table');
+			var cells = table.getElementsByTagName('td');
+
+			for (var i = 0; i < cells.length; i++) {
+				// Take each cell
+				var cell = cells[i];
+				// do something on onclick event for cell
+				cell.onclick = function () {
+					// Get the row id where the cell exists
+					var rowId = this.parentNode.rowIndex;
+
+					var rowsNotSelected = table.getElementsByTagName('tr');
+					for (var row = 0; row < rowsNotSelected.length; row++) {
+						rowsNotSelected[row].style.backgroundColor = "";
+						rowsNotSelected[row].classList.remove('selected');
+					}
+					var rowSelected = table.getElementsByTagName('tr')[rowId];
+					rowSelected.style.backgroundColor = "yellow";
+					rowSelected.className += " selected";
+
+					document.getElementById("firstName").value = rowSelected.cells[0].innerHTML;
+					document.getElementById("lastName").value = rowSelected.cells[1].innerHTML;
+					document.getElementById("email").value = rowSelected.cells[2].innerHTML;
+
+				}
+			}
+		}
+
+	</script>
+</body>
+
+</html>
+}
+
+templ OrderPlaced(orderInfo types.OrderInfo) {
+
+<p>Order submitted for { fmt.Sprintf("%s %s; %d copies of %s; Total: %.2f", orderInfo.First,
+	orderInfo.Last,
+	orderInfo.Quantity, orderInfo.Product, orderInfo.Total) }</p>
+
+}
