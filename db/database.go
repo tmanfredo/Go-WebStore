@@ -285,7 +285,7 @@ func AddOrder (connection *sql.DB, product_id int, customer_id int, quantity int
 }
 
 func GetAllProducts(connection *sql.DB) ([]types.Product, error){
-	stmt, err := connection.Prepare("SELECT product_name, image_name, price, in_stock FROM product")
+	stmt, err := connection.Prepare("SELECT product_name, image_name, price, in_stock, inactive FROM product")
     if err != nil {
         return nil, err
     }
@@ -301,7 +301,7 @@ func GetAllProducts(connection *sql.DB) ([]types.Product, error){
 
     for rows.Next() {
         var product types.Product
-        err := rows.Scan(&product.Name, &product.Image, &product.Price, &product.Instock)
+        err := rows.Scan(&product.Name, &product.Image, &product.Price, &product.Instock, &product.Inactive)
         if err != nil {
             return nil, err
         }
@@ -327,7 +327,7 @@ func GetProductById (connection *sql.DB, product_id int) (*types.Product, error)
     
     
     if rows.Next() {
-        rows.Scan(&product.Id,&product.Name, &product.Image, &product.Price, &product.Instock)
+        rows.Scan(&product.Id,&product.Name, &product.Image, &product.Price, &product.Instock, &product.Inactive)
     }
 
     return &product, nil
@@ -349,9 +349,25 @@ func GetProductByName (connection *sql.DB, product_name string) (*types.Product,
     
     
     if rows.Next() {
-        rows.Scan(&product.Id,&product.Name, &product.Image, &product.Price, &product.Instock)
+        rows.Scan(&product.Id,&product.Name, &product.Image, &product.Price, &product.Instock, &product.Inactive)
     }
 
     return &product, nil
 }
 
+func CreateProduct (connection *sql.DB, name string, image string, quantity int, price float64, instock int) (error){
+    
+    stmt, err := connection.Prepare("INSERT INTO product (product_name, image_name, price, in_stock, inactive) VALUES (?,?,?,?,?)")
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
+
+	_, err = stmt.Query(name, image, price, quantity, instock)
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
+
+    return nil
+}

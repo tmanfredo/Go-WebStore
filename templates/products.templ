@@ -1,0 +1,124 @@
+package templates
+
+import (
+"fmt"
+"go-store/types"
+)
+
+templ Products(products[] types.Product) {
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GameHalt - Order Entry</title>
+    <link rel="stylesheet" href="assets/styles/stylesProducts.css">
+    <link rel="icon" type="image/x-icon" href="assets/images/page_icon.ico">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+
+<body>
+    @header()
+
+    <div id="product_container">
+
+        <div id="products">
+            @ProductTable(products)
+        </div>
+        <aside id="aside">
+            <form id="form">
+                <fieldset id="formBody">
+                    <legend>Game Information</legend>
+
+
+                    <label class="required" for="name">Game Name</label>
+                    <input id="name" type="text" pattern="[A-Za-z' ]+" title="Input only letters, spaces, or '"
+                        name="name" required><br>
+
+                    <label class="required" for="image">Image Path</label>
+                    <input id="image" type="text" pattern="[A-Za-z0-9./- ]+"
+                        title="Enter a path that is valid (letters, numbers, hyphens, and other path symbols)"
+                        name="image" required><br>
+
+                    <label for="quantity">Quantity </label>
+                    <input id="quantity" type="number" placeholder="1" min="0" max="100" name="quantity"><br>
+
+                    <label for="price">Price</label>
+                    <input id="price" name="price" type="number" min="0" step="0.01" placeholder="0.00"><br>
+
+                    <label for="inactive">Inactive?</label>
+                    <input id="inactive" name="inactive" type="checkbox"><br>
+                </fieldset>
+
+                <input id="create" type="submit" value="Add Game">
+                <input id="update" type="button" value="Update">
+                <input id="delete" type="button" value="Delete">
+
+            </form>
+
+        </aside>
+    </div>
+
+    @footer()
+
+    <script>
+        $("#create").click(function (e) {
+            let xhttp = new XMLHttpRequest();
+			let productTable = document.getElementById("products");
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					productTable.innerHTML = this.responseText;
+				}
+
+			};
+             var inactive;
+            if($('#inactive').prop('checked')) inactive = "1";
+            else inactive = "0"; 
+            console.log($("#name").val())
+			xhttp.open("POST", "product_change?crud=create&name=" + $("#name").val() + "&image=" + $("#image").val() + "&quantity=" + 
+                $("#quantity").val() +"&price=" + $("#price").val() + "&inactive=" + inactive, true);
+			xhttp.send();
+			$('#form')[0].reset();
+        })
+
+        $("#update").click(function (e) {
+            
+        })
+
+        $("#delete").click(function (e) {
+            
+        })
+    </script>
+</body>
+
+</html>
+}
+
+templ ProductTable(products[] types.Product) {
+    <h1>Games</h1>
+            <table>
+                <thead>
+                    <th>Game</th>
+                    <th>Product Image</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Inactive</th>
+                </thead>
+                <tbody>
+                    for _, product := range products {
+                    <tr>
+                        <td>{ product.Name }</td>
+                        <td>{ product.Image }</td>
+                        <td>{ fmt.Sprintf("%d",product.Instock) }</td>
+                        <td>${ fmt.Sprintf("%.2f",product.Price) }</td>
+                        if product.Inactive {
+                        <td>Yes</td>
+                        } else {
+                        <td>No</td>
+                        }
+                    </tr>
+                    }
+                </tbody>
+
+            </table>
+}

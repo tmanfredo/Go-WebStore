@@ -84,7 +84,7 @@ templ OrderEntry(products[] types.Product) {
 				}
 
 			};
-			xhttp.open("GET", "order_placed?first=" + first + "&last=" + last + "&email=" + email + "&quantity=" + quantity + "&product=" + product + "&timestamp=" + timestamp, true);
+			xhttp.open("POST", "order_placed?first=" + first + "&last=" + last + "&email=" + email + "&quantity=" + quantity + "&product=" + product + "&timestamp=" + timestamp, true);
 			xhttp.send();
 			$('#form')[0].reset();
 
@@ -135,7 +135,7 @@ templ OrderEntry(products[] types.Product) {
 				}
 
 			};
-			xhttp.open("GET", "search_results?field=" + field + "&input=" + str, true);
+			xhttp.open("POST", "search_results?field=" + field + "&input=" + str, true);
 			xhttp.send();
 		}
 

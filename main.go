@@ -34,41 +34,14 @@ func main() {
 
 	e.Static("assets", "./assets")
 
-	
+
+	/*
+	*	STORE PAGE
+	*/
 	e.GET("/store", func(ctx echo.Context) error {
 		connection := connect()
 		storeProducts, _ := db.GetAllProducts(connection);
 		return Render(ctx, http.StatusOK, templates.Base(templates.Store(storeProducts)))
-	})
-
-	e.GET("/order_entry", func(ctx echo.Context) error {
-		connection := connect()
-		storeProducts, _ := db.GetAllProducts(connection);
-		return Render(ctx, http.StatusOK, templates.OrderEntry(storeProducts))
-	})
-
-	e.GET("/search_results", func(ctx echo.Context) error {
-		connection := connect()
-		input := ctx.QueryParam("field")
-		searchTerm := ctx.QueryParam("input")
-		customerSearch, _ := db.SearchCustomers(connection, input, searchTerm)
-		return Render(ctx, http.StatusOK, templates.UserSearch(customerSearch))
-	})
-
-	e.GET("/product_quantity", func(ctx echo.Context) error {
-		connection := connect()
-		product, _ := db.GetProductByName(connection, ctx.QueryParam("product"))
-		fmt.Printf("%d",product.Instock)
-		return ctx.String(http.StatusOK, fmt.Sprintf("%d", product.Instock))
-	})
-
-	e.GET("/admin", func(ctx echo.Context) error {
-		connection := connect()
-		customers, _ := db.GetAllCustomers(connection)
-		orders, _ := db.GetAllOrders(connection)
-		numOrders, _ := db.NumOfOrders(connection)
-		products, _ := db.GetAllProducts(connection)
-		return Render(ctx, http.StatusOK, templates.Admin(customers, orders, numOrders, products))
 	})
 
 	// Handle the form submission and return the purchase confirmation view
@@ -110,7 +83,37 @@ func main() {
 		return Render(ctx, http.StatusOK, templates.Base(templates.PurchaseConfirmation(purchase)))
 	})
 
-	e.GET("/order_placed", func(ctx echo.Context) error {
+
+	/*
+	*	ADMIN PAGE
+	*/
+	e.GET("/admin", func(ctx echo.Context) error {
+		connection := connect()
+		customers, _ := db.GetAllCustomers(connection)
+		orders, _ := db.GetAllOrders(connection)
+		numOrders, _ := db.NumOfOrders(connection)
+		products, _ := db.GetAllProducts(connection)
+		return Render(ctx, http.StatusOK, templates.Admin(customers, orders, numOrders, products))
+	})
+
+
+	/*
+	*	ORDER ENTRY
+	*/
+	e.GET("/order_entry", func(ctx echo.Context) error {
+		connection := connect()
+		storeProducts, _ := db.GetAllProducts(connection);
+		return Render(ctx, http.StatusOK, templates.OrderEntry(storeProducts))
+	})
+	
+	e.POST("/search_results", func(ctx echo.Context) error {
+		connection := connect()
+		input := ctx.QueryParam("field")
+		searchTerm := ctx.QueryParam("input")
+		customerSearch, _ := db.SearchCustomers(connection, input, searchTerm)
+		return Render(ctx, http.StatusOK, templates.UserSearch(customerSearch))
+	})
+	e.POST("/order_placed", func(ctx echo.Context) error {
 		connection := connect()
 		customer, _ := db.GetCustomerByEmail(connection, ctx.QueryParam("email"))
 		if customer == nil {
@@ -135,6 +138,58 @@ func main() {
 		db.AddOrder(connection, dbProduct.Id, customer.Id, quantity, "No", (int64)(timestamp))
 		return Render(ctx, http.StatusOK, templates.OrderPlaced(order))
 	})
+
+
+	/*
+	*	PRODUCT UPDATES
+	*/
+	e.GET("/products", func(ctx echo.Context) error {
+		connection := connect()
+		storeProducts, _ := db.GetAllProducts(connection);
+		return Render(ctx, http.StatusOK, templates.Products(storeProducts))
+	})
+
+	e.POST("/product_change", func(ctx echo.Context) error {
+		connection := connect()
+		
+		if ctx.QueryParam("crud") == "create" {
+			
+			
+			//price checking
+			var price float64
+			if ctx.QueryParam("price") == "" {
+				price = 0
+			} else {
+				price, _ =  strconv.ParseFloat(ctx.QueryParam("price"), 64)
+			}
+			var quantity int
+			//quantity checking
+			if ctx.QueryParam("quantity") == "" {
+				quantity = 0
+			} else {
+				quantity, _ = strconv.Atoi(ctx.QueryParam("quantity"))
+			}
+			inactive, _ := strconv.Atoi(ctx.QueryParam("inactive"))
+			db.CreateProduct(connection, ctx.QueryParam("name"), ctx.QueryParam("image"), quantity, price, inactive)
+		} else if ctx.QueryParam("crud") == "update" {
+
+		} else if ctx.QueryParam("crud") == "delete" {
+
+		}
+		storeProducts, _ := db.GetAllProducts(connection)
+		return Render(ctx, http.StatusOK, templates.ProductTable(storeProducts))
+	})
+
+	/*
+	*	VARIOUS FUNCTIONS
+	*/
+	e.GET("/product_quantity", func(ctx echo.Context) error {
+		connection := connect()
+		product, _ := db.GetProductByName(connection, ctx.QueryParam("product"))
+		return ctx.String(http.StatusOK, fmt.Sprintf("%d", product.Instock))
+	})
+	
+	
 
 	e.Logger.Fatal(e.Start(":8000"))
 }

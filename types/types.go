@@ -29,6 +29,7 @@ type Product struct{
 	Image string
 	Price float64
 	Instock int
+	Inactive bool
 }
 
 type Order struct{
