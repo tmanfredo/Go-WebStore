@@ -196,10 +196,9 @@ func main() {
 		} else if ctx.QueryParam("crud") == "deleteRequest" { //DELETE REQUEST CHECK
 			id, _ := strconv.Atoi(ctx.QueryParam("id"))
 			orders, _ := db.GetOrdersByProduct(connection, id)
-			if orders != nil {
+			if orders {
 				return ctx.String(http.StatusOK, "That product has orders!")
 			} else {
-				//fmt.Printf("%s",orders[0].Product_Name)
 				return ctx.String(http.StatusOK, "")
 			}
 		}

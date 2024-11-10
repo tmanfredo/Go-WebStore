@@ -42,6 +42,8 @@ a:visited {
 }
 
 #products {
+	overflow: scroll;
+	height: 20em;
     grid-column: 1/2;
     margin-left: 1em;
 	border-right: solid 2px black;

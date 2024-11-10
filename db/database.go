@@ -284,50 +284,19 @@ func AddOrder (connection *sql.DB, product_id int, customer_id int, quantity int
     
 }
 
-func GetOrdersByProduct(connection *sql.DB, product_id int) ([]types.Order,error){
-    stmt, err := connection.Prepare("SELECT * FROM orders WHERE product_id = ?")
-    if err != nil {
-        return nil, err
-    }
+func GetOrdersByProduct(connection *sql.DB, product_id int) (bool,error){
+    stmt, _ := connection.Prepare("SELECT * FROM orders WHERE product_id = ? LIMIT 1")
     defer stmt.Close()
 
-    rows, err := stmt.Query()
-    if err != nil {
-        return nil, err
-    }
+    rows, _ := stmt.Query(product_id)
     defer rows.Close()
 
-    var orders []types.Order
-
-    for rows.Next() {
-        var (
-            productId   int
-            customerId  int
-            order       types.Order
-        )
-        err := rows.Scan(&productId, &customerId,&order.Quantity, &order.Price, &order.Tax, &order.Donation, &order.Timestamp)
-        if err != nil {
-            return nil, err
-        }
-       
-        product, err := GetProductById(connection, productId)
-        if err != nil {
-            return nil, err
-        }
-
-        order.Product_Name = product.Name
-
-        customer, err := GetCustomerById(connection, customerId)
-        if err != nil {
-            return nil, err
-        }
-
-        order.Customer_Name = customer.First + " " + customer.Last
-
-        orders = append(orders, order)
+    if rows.Next() {
+       return true, nil;
     }
 
-	return orders, nil
+	    return false, nil
+    
 }
 
 func GetAllProducts(connection *sql.DB) ([]types.Product, error){
@@ -434,7 +403,7 @@ func UpdateProduct (connection *sql.DB, id int, name string, image string, quant
 }
 
 func DeleteProduct (connection *sql.DB, id int) (error){
-    stmt, err := connection.Prepare("DELETE product WHERE id = ?")
+    stmt, err := connection.Prepare("DELETE FROM product WHERE id = ?")
     if err != nil {
         return err
     }

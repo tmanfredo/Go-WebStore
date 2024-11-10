@@ -134,6 +134,7 @@ templ Products(products[] types.Product) {
                         // Place the remaining logic here after the first request has fully completed
                         if (!tableClicked) {
                             alert("Products can only be deleted through clicking a table's product first!");
+                            return;
                         } else if (confirm("Are you sure you want to delete this product?")) {
                             let xhttp2 = new XMLHttpRequest();
                             let productTable = document.getElementById("products");
