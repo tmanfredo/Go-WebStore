@@ -284,8 +284,54 @@ func AddOrder (connection *sql.DB, product_id int, customer_id int, quantity int
     
 }
 
+func GetOrdersByProduct(connection *sql.DB, product_id int) ([]types.Order,error){
+    stmt, err := connection.Prepare("SELECT * FROM orders WHERE product_id = ?")
+    if err != nil {
+        return nil, err
+    }
+    defer stmt.Close()
+
+    rows, err := stmt.Query()
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var orders []types.Order
+
+    for rows.Next() {
+        var (
+            productId   int
+            customerId  int
+            order       types.Order
+        )
+        err := rows.Scan(&productId, &customerId,&order.Quantity, &order.Price, &order.Tax, &order.Donation, &order.Timestamp)
+        if err != nil {
+            return nil, err
+        }
+       
+        product, err := GetProductById(connection, productId)
+        if err != nil {
+            return nil, err
+        }
+
+        order.Product_Name = product.Name
+
+        customer, err := GetCustomerById(connection, customerId)
+        if err != nil {
+            return nil, err
+        }
+
+        order.Customer_Name = customer.First + " " + customer.Last
+
+        orders = append(orders, order)
+    }
+
+	return orders, nil
+}
+
 func GetAllProducts(connection *sql.DB) ([]types.Product, error){
-	stmt, err := connection.Prepare("SELECT product_name, image_name, price, in_stock, inactive FROM product")
+	stmt, err := connection.Prepare("SELECT * FROM product")
     if err != nil {
         return nil, err
     }
@@ -301,7 +347,7 @@ func GetAllProducts(connection *sql.DB) ([]types.Product, error){
 
     for rows.Next() {
         var product types.Product
-        err := rows.Scan(&product.Name, &product.Image, &product.Price, &product.Instock, &product.Inactive)
+        err := rows.Scan(&product.Id, &product.Name, &product.Image, &product.Price, &product.Instock, &product.Inactive)
         if err != nil {
             return nil, err
         }
@@ -355,15 +401,46 @@ func GetProductByName (connection *sql.DB, product_name string) (*types.Product,
     return &product, nil
 }
 
-func CreateProduct (connection *sql.DB, name string, image string, quantity int, price float64, instock int) (error){
-    
+func CreateProduct (connection *sql.DB, name string, image string, quantity int, price float64, inactive int) (error){
     stmt, err := connection.Prepare("INSERT INTO product (product_name, image_name, price, in_stock, inactive) VALUES (?,?,?,?,?)")
     if err != nil {
         return err
     }
     defer stmt.Close()
 
-	_, err = stmt.Query(name, image, price, quantity, instock)
+	_, err = stmt.Query(name, image, price, quantity, inactive)
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
+
+    return nil
+}
+
+func UpdateProduct (connection *sql.DB, id int, name string, image string, quantity int, price float64, inactive int) (error){
+    stmt, err := connection.Prepare("UPDATE product SET product_name = ?, image_name = ?, price = ?, in_stock = ?, inactive = ? WHERE id = ?")
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
+
+	_, err = stmt.Query(name, image, price, quantity, inactive, id)
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
+
+    return nil
+}
+
+func DeleteProduct (connection *sql.DB, id int) (error){
+    stmt, err := connection.Prepare("DELETE product WHERE id = ?")
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
+
+	_, err = stmt.Query(id)
     if err != nil {
         return err
     }

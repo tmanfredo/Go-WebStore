@@ -152,9 +152,8 @@ func main() {
 	e.POST("/product_change", func(ctx echo.Context) error {
 		connection := connect()
 		
-		if ctx.QueryParam("crud") == "create" {
-			
-			
+		
+		if ctx.QueryParam("crud") == "create" { //CREATE
 			//price checking
 			var price float64
 			if ctx.QueryParam("price") == "" {
@@ -171,11 +170,40 @@ func main() {
 			}
 			inactive, _ := strconv.Atoi(ctx.QueryParam("inactive"))
 			db.CreateProduct(connection, ctx.QueryParam("name"), ctx.QueryParam("image"), quantity, price, inactive)
-		} else if ctx.QueryParam("crud") == "update" {
+		} else if ctx.QueryParam("crud") == "update" { //UPDATE
+			id, _ := strconv.Atoi(ctx.QueryParam("id"))
+			//price checking
+			var price float64
+			if ctx.QueryParam("price") == "" {
+				price = 0
+			} else {
+				price, _ =  strconv.ParseFloat(ctx.QueryParam("price"), 64)
+			}
+			var quantity int
+			//quantity checking
+			if ctx.QueryParam("quantity") == "" {
+				quantity = 0
+			} else {
+				quantity, _ = strconv.Atoi(ctx.QueryParam("quantity"))
+			}
+			inactive, _ := strconv.Atoi(ctx.QueryParam("inactive"))
+			db.UpdateProduct(connection, id, ctx.QueryParam("name"), ctx.QueryParam("image"), quantity, price, inactive)
 
-		} else if ctx.QueryParam("crud") == "delete" {
+		} else if ctx.QueryParam("crud") == "delete" { //DELETE
+			id, _ := strconv.Atoi(ctx.QueryParam("id"))
+			db.DeleteProduct(connection, id)
 
+		} else if ctx.QueryParam("crud") == "deleteRequest" { //DELETE REQUEST CHECK
+			id, _ := strconv.Atoi(ctx.QueryParam("id"))
+			orders, _ := db.GetOrdersByProduct(connection, id)
+			if orders != nil {
+				return ctx.String(http.StatusOK, "That product has orders!")
+			} else {
+				//fmt.Printf("%s",orders[0].Product_Name)
+				return ctx.String(http.StatusOK, "")
+			}
 		}
+
 		storeProducts, _ := db.GetAllProducts(connection)
 		return Render(ctx, http.StatusOK, templates.ProductTable(storeProducts))
 	})

@@ -26,6 +26,7 @@ templ Products(products[] types.Product) {
             @ProductTable(products)
         </div>
         <aside id="aside">
+            <p id="alert" style="color: red"></p>
             <form id="form">
                 <fieldset id="formBody">
                     <legend>Game Information</legend>
@@ -50,43 +51,159 @@ templ Products(products[] types.Product) {
                     <input id="inactive" name="inactive" type="checkbox"><br>
                 </fieldset>
 
-                <input id="create" type="submit" value="Add Game">
+                <input id="create" type="button" value="Add Game">
                 <input id="update" type="button" value="Update">
                 <input id="delete" type="button" value="Delete">
 
-            </form>
-
+            </form><br>
+            <em>If updating/deleting a game, click on the table entry!<br> The highlighted row will be
+                modified/deleted!<br>Games with no orders can be deleted!</em>
         </aside>
     </div>
 
     @footer()
 
     <script>
-        $("#create").click(function (e) {
-            let xhttp = new XMLHttpRequest();
-			let productTable = document.getElementById("products");
-			xhttp.onreadystatechange = function () {
-				if (this.readyState == 4 && this.status == 200) {
-					productTable.innerHTML = this.responseText;
-				}
+        $(document).ready(function () {
+            var productId = -1;
+            var tableClicked = false;
+            setTimeout(highlight_row, 0);
 
-			};
-             var inactive;
-            if($('#inactive').prop('checked')) inactive = "1";
-            else inactive = "0"; 
-            console.log($("#name").val())
-			xhttp.open("POST", "product_change?crud=create&name=" + $("#name").val() + "&image=" + $("#image").val() + "&quantity=" + 
-                $("#quantity").val() +"&price=" + $("#price").val() + "&inactive=" + inactive, true);
-			xhttp.send();
-			$('#form')[0].reset();
-        })
+            $("#create").click(function (e) {
+                if (!checkRequired($("#name").val(), $("#image").val())) {
+                    return;
+                }
+                else {
+                    let xhttp = new XMLHttpRequest();
+                    let productTable = document.getElementById("products");
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) {
+                            productTable.innerHTML = this.responseText;
+                            setTimeout(highlight_row, 0);
+                        }
 
-        $("#update").click(function (e) {
-            
-        })
+                    };
+                    var inactive;
+                    if ($('#inactive').prop('checked')) inactive = "1";
+                    else inactive = "0";
+                    xhttp.open("POST", "product_change?crud=create&name=" + $("#name").val() + "&image=" + $("#image").val() + "&quantity=" +
+                        $("#quantity").val() + "&price=" + $("#price").val() + "&inactive=" + inactive, true);
+                    xhttp.send();
+                    $('#form')[0].reset();
+                }
+            })
 
-        $("#delete").click(function (e) {
-            
+            $("#update").click(function (e) {
+
+                if (!checkRequired($("#name").val(), $("#image").val())) {
+                    return;
+                }
+                else if (!tableClicked) {
+                    alert("Products can only be updated through clicking a table's product first!")
+                }
+                else {
+                    let xhttp = new XMLHttpRequest();
+                    let productTable = document.getElementById("products");
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) {
+                            productTable.innerHTML = this.responseText;
+                            setTimeout(highlight_row, 0);
+                        }
+
+                    };
+                    var inactive;
+                    if ($('#inactive').prop('checked')) inactive = "1";
+                    else inactive = "0";
+                    xhttp.open("POST", "product_change?crud=update&id=" + productId + "&name=" + $("#name").val() + "&image=" + $("#image").val() + "&quantity=" +
+                        $("#quantity").val() + "&price=" + $("#price").val() + "&inactive=" + inactive, true);
+                    xhttp.send();
+                    $('#form')[0].reset();
+                }
+            })
+
+            $("#delete").click(function (e) {
+                let xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        if (this.responseText !== "") {
+                            alert("You cannot delete this product as it has active orders!\nMaking it inactive may ensure this issue does not come up again!")
+                            setTimeout(highlight_row, 0);
+                            return;
+                        }
+
+                        // Place the remaining logic here after the first request has fully completed
+                        if (!tableClicked) {
+                            alert("Products can only be deleted through clicking a table's product first!");
+                        } else if (confirm("Are you sure you want to delete this product?")) {
+                            let xhttp2 = new XMLHttpRequest();
+                            let productTable = document.getElementById("products");
+                            xhttp2.onreadystatechange = function () {
+                                if (this.readyState == 4 && this.status == 200) {
+                                    productTable.innerHTML = this.responseText;
+                                    setTimeout(highlight_row, 0);
+                                }
+                            };
+                            xhttp2.open("POST", "product_change?crud=delete&id=" + productId, true);
+                            xhttp2.send();
+                            $('#form')[0].reset();
+                        }
+                    }
+                };
+                xhttp.open("POST", "product_change?crud=deleteRequest&id=" + productId, true);
+                xhttp.send();
+            });
+
+
+            function checkRequired(name, image) {
+                let alertMessage = "";
+                if (name == "") {
+                    alertMessage += "Game Name should not be blank!<br>";
+                }
+                if (image == "") {
+                    alertMessage += "Game Image should not be blank!<br>";
+                }
+
+                if (alertMessage !== "") {
+                    document.getElementById("alert").innerHTML = alertMessage;
+                    return false;
+                } else {
+                    document.getElementById("alert").innerHTML = "";
+                    return true;
+                }
+            }
+
+            function highlight_row() {
+                var table = document.getElementById('product_table');
+                var cells = table.getElementsByTagName('td');
+                tableClicked = false;
+                for (var i = 0; i < cells.length; i++) {
+                    // Take each cell
+                    var cell = cells[i];
+                    // do something on onclick event for cell
+                    cell.onclick = function () {
+                        tableClicked = true;
+                        // Get the row id where the cell exists
+                        var rowId = this.parentNode.rowIndex;
+
+                        var rowsNotSelected = table.getElementsByTagName('tr');
+                        for (var row = 0; row < rowsNotSelected.length; row++) {
+                            rowsNotSelected[row].style.backgroundColor = "";
+                            rowsNotSelected[row].classList.remove('selected');
+                        }
+                        var rowSelected = table.getElementsByTagName('tr')[rowId];
+                        rowSelected.style.backgroundColor = "yellow";
+                        rowSelected.className += " selected";
+
+                        document.getElementById("name").value = rowSelected.cells[0].innerHTML;
+                        document.getElementById("image").value = rowSelected.cells[1].innerHTML;
+                        document.getElementById("quantity").value = rowSelected.cells[2].innerHTML;
+                        document.getElementById("price").value = parseFloat(rowSelected.cells[3].innerHTML.replace('$', ''));
+                        if (rowSelected.cells[4].innerHTML == "Yes") document.getElementById("inactive").checked = true;
+                        else document.getElementById("inactive").checked = false;
+                        productId = rowSelected.cells[0].getAttribute("data-id");
+                    }
+                }
+            }
         })
     </script>
 </body>
@@ -95,30 +212,30 @@ templ Products(products[] types.Product) {
 }
 
 templ ProductTable(products[] types.Product) {
-    <h1>Games</h1>
-            <table>
-                <thead>
-                    <th>Game</th>
-                    <th>Product Image</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th>Inactive</th>
-                </thead>
-                <tbody>
-                    for _, product := range products {
-                    <tr>
-                        <td>{ product.Name }</td>
-                        <td>{ product.Image }</td>
-                        <td>{ fmt.Sprintf("%d",product.Instock) }</td>
-                        <td>${ fmt.Sprintf("%.2f",product.Price) }</td>
-                        if product.Inactive {
-                        <td>Yes</td>
-                        } else {
-                        <td>No</td>
-                        }
-                    </tr>
-                    }
-                </tbody>
+<h1>Games</h1>
+<table id="product_table">
+    <thead>
+        <th>Game</th>
+        <th>Product Image</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Inactive</th>
+    </thead>
+    <tbody>
+        for _, product := range products {
+        <tr>
+            <td data-id={ fmt.Sprintf("%d",product.Id) }>{ product.Name }</td>
+            <td>{ product.Image }</td>
+            <td>{ fmt.Sprintf("%d",product.Instock) }</td>
+            <td>${ fmt.Sprintf("%.2f",product.Price) }</td>
+            if product.Inactive {
+            <td>Yes</td>
+            } else {
+            <td>No</td>
+            }
+        </tr>
+        }
+    </tbody>
 
-            </table>
+</table>
 }

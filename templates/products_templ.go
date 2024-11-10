@@ -50,7 +50,7 @@ func Products(products []types.Product) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><aside id=\"aside\"><form id=\"form\"><fieldset id=\"formBody\"><legend>Game Information</legend> <label class=\"required\" for=\"name\">Game Name</label> <input id=\"name\" type=\"text\" pattern=\"[A-Za-z&#39; ]+\" title=\"Input only letters, spaces, or &#39;\" name=\"name\" required><br><label class=\"required\" for=\"image\">Image Path</label> <input id=\"image\" type=\"text\" pattern=\"[A-Za-z0-9./- ]+\" title=\"Enter a path that is valid (letters, numbers, hyphens, and other path symbols)\" name=\"image\" required><br><label for=\"quantity\">Quantity </label> <input id=\"quantity\" type=\"number\" placeholder=\"1\" min=\"0\" max=\"100\" name=\"quantity\"><br><label for=\"price\">Price</label> <input id=\"price\" name=\"price\" type=\"number\" min=\"0\" step=\"0.01\" placeholder=\"0.00\"><br><label for=\"inactive\">Inactive?</label> <input id=\"inactive\" name=\"inactive\" type=\"checkbox\"><br></fieldset><input id=\"create\" type=\"submit\" value=\"Add Game\"> <input id=\"update\" type=\"button\" value=\"Update\"> <input id=\"delete\" type=\"button\" value=\"Delete\"></form></aside></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><aside id=\"aside\"><p id=\"alert\" style=\"color: red\"></p><form id=\"form\"><fieldset id=\"formBody\"><legend>Game Information</legend> <label class=\"required\" for=\"name\">Game Name</label> <input id=\"name\" type=\"text\" pattern=\"[A-Za-z&#39; ]+\" title=\"Input only letters, spaces, or &#39;\" name=\"name\" required><br><label class=\"required\" for=\"image\">Image Path</label> <input id=\"image\" type=\"text\" pattern=\"[A-Za-z0-9./- ]+\" title=\"Enter a path that is valid (letters, numbers, hyphens, and other path symbols)\" name=\"image\" required><br><label for=\"quantity\">Quantity </label> <input id=\"quantity\" type=\"number\" placeholder=\"1\" min=\"0\" max=\"100\" name=\"quantity\"><br><label for=\"price\">Price</label> <input id=\"price\" name=\"price\" type=\"number\" min=\"0\" step=\"0.01\" placeholder=\"0.00\"><br><label for=\"inactive\">Inactive?</label> <input id=\"inactive\" name=\"inactive\" type=\"checkbox\"><br></fieldset><input id=\"create\" type=\"button\" value=\"Add Game\"> <input id=\"update\" type=\"button\" value=\"Update\"> <input id=\"delete\" type=\"button\" value=\"Delete\"></form><br><em>If updating/deleting a game, click on the table entry!<br>The highlighted row will be modified/deleted!<br>Games with no orders can be deleted!</em></aside></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -58,7 +58,7 @@ func Products(products []types.Product) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\r\n        $(\"#create\").click(function (e) {\r\n            let xhttp = new XMLHttpRequest();\r\n\t\t\tlet productTable = document.getElementById(\"products\");\r\n\t\t\txhttp.onreadystatechange = function () {\r\n\t\t\t\tif (this.readyState == 4 && this.status == 200) {\r\n\t\t\t\t\tproductTable.innerHTML = this.responseText;\r\n\t\t\t\t}\r\n\r\n\t\t\t};\r\n             var inactive;\r\n            if($('#inactive').prop('checked')) inactive = \"1\";\r\n            else inactive = \"0\"; \r\n            console.log($(\"#name\").val())\r\n\t\t\txhttp.open(\"POST\", \"product_change?crud=create&name=\" + $(\"#name\").val() + \"&image=\" + $(\"#image\").val() + \"&quantity=\" + \r\n                $(\"#quantity\").val() +\"&price=\" + $(\"#price\").val() + \"&inactive=\" + inactive, true);\r\n\t\t\txhttp.send();\r\n\t\t\t$('#form')[0].reset();\r\n        })\r\n\r\n        $(\"#update\").click(function (e) {\r\n            \r\n        })\r\n\r\n        $(\"#delete\").click(function (e) {\r\n            \r\n        })\r\n    </script></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\r\n        $(document).ready(function () {\r\n            var productId = -1;\r\n            var tableClicked = false;\r\n            setTimeout(highlight_row, 0);\r\n\r\n            $(\"#create\").click(function (e) {\r\n                if (!checkRequired($(\"#name\").val(), $(\"#image\").val())) {\r\n                    return;\r\n                }\r\n                else {\r\n                    let xhttp = new XMLHttpRequest();\r\n                    let productTable = document.getElementById(\"products\");\r\n                    xhttp.onreadystatechange = function () {\r\n                        if (this.readyState == 4 && this.status == 200) {\r\n                            productTable.innerHTML = this.responseText;\r\n                            setTimeout(highlight_row, 0);\r\n                        }\r\n\r\n                    };\r\n                    var inactive;\r\n                    if ($('#inactive').prop('checked')) inactive = \"1\";\r\n                    else inactive = \"0\";\r\n                    xhttp.open(\"POST\", \"product_change?crud=create&name=\" + $(\"#name\").val() + \"&image=\" + $(\"#image\").val() + \"&quantity=\" +\r\n                        $(\"#quantity\").val() + \"&price=\" + $(\"#price\").val() + \"&inactive=\" + inactive, true);\r\n                    xhttp.send();\r\n                    $('#form')[0].reset();\r\n                }\r\n            })\r\n\r\n            $(\"#update\").click(function (e) {\r\n\r\n                if (!checkRequired($(\"#name\").val(), $(\"#image\").val())) {\r\n                    return;\r\n                }\r\n                else if (!tableClicked) {\r\n                    alert(\"Products can only be updated through clicking a table's product first!\")\r\n                }\r\n                else {\r\n                    let xhttp = new XMLHttpRequest();\r\n                    let productTable = document.getElementById(\"products\");\r\n                    xhttp.onreadystatechange = function () {\r\n                        if (this.readyState == 4 && this.status == 200) {\r\n                            productTable.innerHTML = this.responseText;\r\n                            setTimeout(highlight_row, 0);\r\n                        }\r\n\r\n                    };\r\n                    var inactive;\r\n                    if ($('#inactive').prop('checked')) inactive = \"1\";\r\n                    else inactive = \"0\";\r\n                    xhttp.open(\"POST\", \"product_change?crud=update&id=\" + productId + \"&name=\" + $(\"#name\").val() + \"&image=\" + $(\"#image\").val() + \"&quantity=\" +\r\n                        $(\"#quantity\").val() + \"&price=\" + $(\"#price\").val() + \"&inactive=\" + inactive, true);\r\n                    xhttp.send();\r\n                    $('#form')[0].reset();\r\n                }\r\n            })\r\n\r\n            $(\"#delete\").click(function (e) {\r\n                let xhttp = new XMLHttpRequest();\r\n                xhttp.onreadystatechange = function () {\r\n                    if (this.readyState == 4 && this.status == 200) {\r\n                        if (this.responseText !== \"\") {\r\n                            alert(\"You cannot delete this product as it has active orders!\\nMaking it inactive may ensure this issue does not come up again!\")\r\n                            setTimeout(highlight_row, 0);\r\n                            return;\r\n                        }\r\n\r\n                        // Place the remaining logic here after the first request has fully completed\r\n                        if (!tableClicked) {\r\n                            alert(\"Products can only be deleted through clicking a table's product first!\");\r\n                        } else if (confirm(\"Are you sure you want to delete this product?\")) {\r\n                            let xhttp2 = new XMLHttpRequest();\r\n                            let productTable = document.getElementById(\"products\");\r\n                            xhttp2.onreadystatechange = function () {\r\n                                if (this.readyState == 4 && this.status == 200) {\r\n                                    productTable.innerHTML = this.responseText;\r\n                                    setTimeout(highlight_row, 0);\r\n                                }\r\n                            };\r\n                            xhttp2.open(\"POST\", \"product_change?crud=delete&id=\" + productId, true);\r\n                            xhttp2.send();\r\n                            $('#form')[0].reset();\r\n                        }\r\n                    }\r\n                };\r\n                xhttp.open(\"POST\", \"product_change?crud=deleteRequest&id=\" + productId, true);\r\n                xhttp.send();\r\n            });\r\n\r\n\r\n            function checkRequired(name, image) {\r\n                let alertMessage = \"\";\r\n                if (name == \"\") {\r\n                    alertMessage += \"Game Name should not be blank!<br>\";\r\n                }\r\n                if (image == \"\") {\r\n                    alertMessage += \"Game Image should not be blank!<br>\";\r\n                }\r\n\r\n                if (alertMessage !== \"\") {\r\n                    document.getElementById(\"alert\").innerHTML = alertMessage;\r\n                    return false;\r\n                } else {\r\n                    document.getElementById(\"alert\").innerHTML = \"\";\r\n                    return true;\r\n                }\r\n            }\r\n\r\n            function highlight_row() {\r\n                var table = document.getElementById('product_table');\r\n                var cells = table.getElementsByTagName('td');\r\n                tableClicked = false;\r\n                for (var i = 0; i < cells.length; i++) {\r\n                    // Take each cell\r\n                    var cell = cells[i];\r\n                    // do something on onclick event for cell\r\n                    cell.onclick = function () {\r\n                        tableClicked = true;\r\n                        // Get the row id where the cell exists\r\n                        var rowId = this.parentNode.rowIndex;\r\n\r\n                        var rowsNotSelected = table.getElementsByTagName('tr');\r\n                        for (var row = 0; row < rowsNotSelected.length; row++) {\r\n                            rowsNotSelected[row].style.backgroundColor = \"\";\r\n                            rowsNotSelected[row].classList.remove('selected');\r\n                        }\r\n                        var rowSelected = table.getElementsByTagName('tr')[rowId];\r\n                        rowSelected.style.backgroundColor = \"yellow\";\r\n                        rowSelected.className += \" selected\";\r\n\r\n                        document.getElementById(\"name\").value = rowSelected.cells[0].innerHTML;\r\n                        document.getElementById(\"image\").value = rowSelected.cells[1].innerHTML;\r\n                        document.getElementById(\"quantity\").value = rowSelected.cells[2].innerHTML;\r\n                        document.getElementById(\"price\").value = parseFloat(rowSelected.cells[3].innerHTML.replace('$', ''));\r\n                        if (rowSelected.cells[4].innerHTML == \"Yes\") document.getElementById(\"inactive\").checked = true;\r\n                        else document.getElementById(\"inactive\").checked = false;\r\n                        productId = rowSelected.cells[0].getAttribute(\"data-id\");\r\n                    }\r\n                }\r\n            }\r\n        })\r\n    </script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -87,32 +87,32 @@ func ProductTable(products []types.Product) templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>Games</h1><table><thead><th>Game</th><th>Product Image</th><th>Quantity</th><th>Price</th><th>Inactive</th></thead> <tbody>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>Games</h1><table id=\"product_table\"><thead><th>Game</th><th>Product Image</th><th>Quantity</th><th>Price</th><th>Inactive</th></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, product := range products {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr><td>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr><td data-id=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(product.Name)
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", product.Id))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/products.templ`, Line: 110, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/products.templ`, Line: 227, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(product.Image)
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(product.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/products.templ`, Line: 111, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/products.templ`, Line: 227, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -123,11 +123,24 @@ func ProductTable(products []types.Product) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", product.Instock))
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(product.Image)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/products.templ`, Line: 112, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/products.templ`, Line: 228, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", product.Instock))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/products.templ`, Line: 229, Col: 51}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -135,12 +148,12 @@ func ProductTable(products []types.Product) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", product.Price))
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", product.Price))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/products.templ`, Line: 113, Col: 64}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/products.templ`, Line: 230, Col: 52}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
