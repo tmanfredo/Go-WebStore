@@ -131,8 +131,10 @@ templ Products(products[] types.Product) {
                             return;
                         }
 
-                        // Place the remaining logic here after the first request has fully completed
-                        if (!tableClicked) {
+                        if (!checkRequired($("#name").val(), $("#image").val())) {
+                            return;
+                        }
+                        else if (!tableClicked) {
                             alert("Products can only be deleted through clicking a table's product first!");
                             return;
                         } else if (confirm("Are you sure you want to delete this product?")) {
@@ -157,11 +159,13 @@ templ Products(products[] types.Product) {
 
             function checkRequired(name, image) {
                 let alertMessage = "";
-                if (name == "") {
-                    alertMessage += "Game Name should not be blank!<br>";
-                }
                 if (image == "") {
                     alertMessage += "Game Image should not be blank!<br>";
+                    document.getElementById("image").focus();
+                }
+                if (name == "") {
+                    alertMessage += "Game Name should not be blank!<br>";
+                    document.getElementById("name").focus();
                 }
 
                 if (alertMessage !== "") {
