@@ -10,7 +10,7 @@ import (
 templ Store(products[] types.Product) {
 <div id="store_container">
 	<form id="form" action="/purchase" method="POST">
-	<input type="hidden" name="timestamp" value={ fmt.Sprintf("%d", time.Now().Unix()) }/>
+		<input type="hidden" name="timestamp" value={ fmt.Sprintf("%d", time.Now().Unix()) } />
 
 		<fieldset id="info" class="required">
 			<legend>Personal Info</legend>
@@ -28,10 +28,15 @@ templ Store(products[] types.Product) {
 				<select name="product" id="productSelection" required>
 					<option value="" style="font-weight:bold" disabled selected>Choose a Product</option>
 					for _, product := range products {
-					<option value={ product.Name } data-image={ product.Image } data-stock={ fmt.Sprintf("%d",product.Instock) }>
+					if product.Inactive {
+						continue;
+					} else {
+					<option value={ product.Name } data-image={ product.Image } data-stock={
+						fmt.Sprintf("%d",product.Instock) }>
 						{ fmt.Sprintf("%s: $%.2f", product.Name, product.Price) }
 					</option>
 					}
+				}
 
 				</select><br>
 			</label>
