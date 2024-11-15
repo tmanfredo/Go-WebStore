@@ -47,6 +47,7 @@ func main() {
 	// Handle the form submission and return the purchase confirmation view
 	e.POST("/purchase", func(ctx echo.Context) error {
 		connection := connect()
+	fmt.Printf(ctx.FormValue("productTracking"))
 	customer, _ := db.GetCustomerByEmail(connection, ctx.FormValue("email"))
 	welcome := ""
 	if customer == nil {
