@@ -34,6 +34,16 @@ func main() {
 
 	e.Static("assets", "./assets")
 
+	/*
+	* DEFAULT PAGE
+	*/
+	e.GET("/", func(ctx echo.Context) error {
+		return Render(ctx, http.StatusOK, templates.Login())
+	})
+
+	/*
+	* LOGIN PAGE
+	*/
 
 	/*
 	*	STORE PAGE
@@ -46,8 +56,8 @@ func main() {
 
 	// Handle the form submission and return the purchase confirmation view
 	e.POST("/purchase", func(ctx echo.Context) error {
-		connection := connect()
-	fmt.Printf(ctx.FormValue("productTracking"))
+	connection := connect()
+	
 	customer, _ := db.GetCustomerByEmail(connection, ctx.FormValue("email"))
 	welcome := ""
 	if customer == nil {
@@ -77,6 +87,7 @@ func main() {
 			Tax:      tax,
 			Subtotal: subtotal,
 			Total:    total,
+			ProductsViewed: ctx.FormValue("productTracking"),
 		}
 		
 		//add order but only if it isn't already in there (checked inside of AddOrder)

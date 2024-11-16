@@ -13,6 +13,7 @@ type PurchaseInfo struct {
 	Tax float64
 	Subtotal float64
 	Total float64
+	ProductsViewed string
 }
 
 type OrderInfo struct {

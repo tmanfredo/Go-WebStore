@@ -19,7 +19,7 @@ templ OrderEntry(products[] types.Product) {
 </head>
 
 <body>
-	@header()
+	@header(1)
 	<div id="store_container">
 		<form id="form" action="/order_placed" method="POST">
 			<input id="timestamp" type="hidden" name="timestamp" value={fmt.Sprintf("%d", time.Now().Unix())} />

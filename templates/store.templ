@@ -82,6 +82,12 @@ templ PurchaseConfirmation(purchaseInformation types.PurchaseInfo) {
 	} else {
 	<p> { fmt.Sprintf("Total with donation: $%.2f", math.Ceil(purchaseInformation.Total)) } </p>
 	}
-
+	<br>
+	
+	if purchaseInformation.ProductsViewed != "" {
+	<p>
+		{ fmt.Sprintf("The products you viewed but did not purchase: %s", purchaseInformation.ProductsViewed) }
+	</p>
+	}
 </div>
 }
