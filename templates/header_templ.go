@@ -34,7 +34,13 @@ func header(authorization int) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if authorization >= 0 {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a href=\"#\">Home</a> <a href=\"/store\">Store</a> ")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a href=\"#\">Home</a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		if authorization == 0 || authorization == 2 {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a href=\"/store\">Store</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

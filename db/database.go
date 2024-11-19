@@ -8,6 +8,7 @@ import (
 )
 
 func GetUserSecurity (connection *sql.DB, username string, password string) (int, error){
+    
     stmt, err := connection.Prepare("SELECT role FROM users WHERE email = ? AND password = ?")
     if err != nil {
         fmt.Sprintf("Error 1: %s", err)
@@ -28,8 +29,10 @@ func GetUserSecurity (connection *sql.DB, username string, password string) (int
                 fmt.Printf("error3: %s",err)
                 return 0, err
             }
+        
         return security, nil
     }
+   
     return 0, nil
 
 }
