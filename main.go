@@ -43,18 +43,20 @@ func main() {
 			return err // Return an error if session retrieval fails
 		}
 
-		// Check if session contains the 'security' value
+		
 		security, ok := sess.Values["security"].(int)
+		first_name, ok := sess.Values["first_name"].(string)
 		if !ok {
 			security = 0 //if session not active
+			first_name = ""
 		}
 
 		if ctx.QueryParam("err") == "invalid_auth" {
-			return Render(ctx, http.StatusOK, templates.InitialPage(security, "You do not have authorization to view this page"))
+			return Render(ctx, http.StatusOK, templates.InitialPage(first_name,security, "You do not have authorization to view this page"))
 		} else if ctx.QueryParam("err") == "login_required" {
-			return Render(ctx, http.StatusOK, templates.InitialPage(security, "You need to log in first to view this page"))
+			return Render(ctx, http.StatusOK, templates.InitialPage(first_name, security, "You need to log in first to view this page"))
 		}
-		return Render(ctx, http.StatusOK, templates.InitialPage(security, ""))
+		return Render(ctx, http.StatusOK, templates.InitialPage(first_name, security, ""))
 	})
 
 	/*
@@ -62,9 +64,9 @@ func main() {
 	*/
 	e.GET("/login", func(ctx echo.Context) error {
 		connection := connect()
-		security, _ := db.GetUserSecurity(connection, ctx.FormValue("username"), ctx.FormValue("password"))
+		first_name, security, _ := db.GetUserSecurity(connection, ctx.FormValue("username"), ctx.FormValue("password"))
 		if security == 0 {
-			return Render(ctx, http.StatusOK, templates.InitialPage(0, "Incorrect username or password, either try again or continue as guest."))
+			return Render(ctx, http.StatusOK, templates.InitialPage("",security, "Incorrect username or password, either try again or continue as guest."))
 		} else {
 			sess, err := session.Get("session", ctx)
 			if err != nil {
@@ -86,6 +88,7 @@ func main() {
 			}
 			
 			sess.Values["security"] = security
+			sess.Values["first_name"] = first_name
 			
 			if err := sess.Save(ctx.Request(), ctx.Response()); err != nil {
 				return err
@@ -119,6 +122,7 @@ func main() {
 			HttpOnly: true,
 		}
 		sess.Values["security"] = 0
+		sess.Values["first_name"] = ""
 		sess.Save(ctx.Request(), ctx.Response())
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	})
@@ -129,8 +133,11 @@ func main() {
 	e.GET("/store", func(ctx echo.Context) error {
 		connection := connect()
 		storeProducts, _ := db.GetAllProducts(connection)
-		security, _ := strconv.Atoi(ctx.QueryParam("security"))
-		return Render(ctx, http.StatusOK, templates.Base(security, templates.Store(storeProducts)))
+		first_name, security, redirect := ClearanceCheck(ctx, 0)
+		if redirect != nil {
+			return redirect
+		} 
+		return Render(ctx, http.StatusOK, templates.Base(first_name, security, templates.Store(storeProducts)))
 	})
 
 	// Handle the form submission and return the purchase confirmation view
@@ -171,8 +178,11 @@ func main() {
 		
 		//add order but only if it isn't already in there (checked inside of AddOrder)
 		db.AddOrder(connection, dbProduct.Id, customer.Id, quantity, ctx.FormValue("donate"), (int64)(timestamp))
-		security, _ := strconv.Atoi(ctx.QueryParam("security"))
-		return Render(ctx, http.StatusOK, templates.Base(security,templates.PurchaseConfirmation(purchase)))
+		first_name, security, redirect := ClearanceCheck(ctx, 0)
+		if redirect != nil {
+			return redirect
+		} 
+		return Render(ctx, http.StatusOK, templates.Base(first_name,security,templates.PurchaseConfirmation(purchase)))
 	})
 
 
@@ -186,11 +196,12 @@ func main() {
 		numOrders, _ := db.NumOfOrders(connection)
 		products, _ := db.GetAllProducts(connection)
 	
-		security, redirect := ClearanceCheck(ctx, 1)
+		first_name, security, redirect := ClearanceCheck(ctx, 1)
+		
 		if redirect != nil {
 			return redirect
 		} 
-		return Render(ctx, http.StatusOK, templates.Admin(security, customers, orders, numOrders, products))
+		return Render(ctx, http.StatusOK, templates.Admin(first_name, security, customers, orders, numOrders, products))
 	})
 
 
@@ -202,13 +213,13 @@ func main() {
 		connection := connect()
 		storeProducts, _ := db.GetAllProducts(connection)
 	
-		security, redirect := ClearanceCheck(ctx, 1)
+		first_name, security, redirect := ClearanceCheck(ctx, 1)
 		if redirect != nil {
 			return redirect
 		} 
 	
 		// Render the order entry page with the security level and products
-		return Render(ctx, http.StatusOK, templates.OrderEntry(security, storeProducts))
+		return Render(ctx, http.StatusOK, templates.OrderEntry(first_name, security, storeProducts))
 	})
 	
 	
@@ -253,11 +264,11 @@ func main() {
 		connection := connect()
 		storeProducts, _ := db.GetAllProducts(connection);
 
-		security, redirect := ClearanceCheck(ctx, 2)
+		first_name, security, redirect := ClearanceCheck(ctx, 2)
 		if redirect != nil {
 			return redirect
 		} 
-		return Render(ctx, http.StatusOK, templates.Products(security, storeProducts))
+		return Render(ctx, http.StatusOK, templates.Products(first_name,security, storeProducts))
 		
 	})
 
@@ -346,19 +357,20 @@ func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	return ctx.HTML(statusCode, buf.String())
 }
 
-func ClearanceCheck(ctx echo.Context, threshold int) (int, error){
+func ClearanceCheck(ctx echo.Context, threshold int) (string, int, error){
 	sess, err := session.Get("session", ctx)
 	if err != nil {
-		return 0, err // Return an error if session retrieval fails
+		return "",0, err // Return an error if session retrieval fails
 	}
 
 	// Check if session contains the 'security' value
 	security, ok := sess.Values["security"].(int)
+	first_name, ok := sess.Values["first_name"].(string)
 	if !ok {
-		return 0, ctx.Redirect(http.StatusSeeOther, "/?err=login_required")
+		return "", 0, ctx.Redirect(http.StatusSeeOther, "/?err=login_required")
 	} else if security < threshold {
 		// Redirect to an error page if no valid security value found
-		return 0, ctx.Redirect(http.StatusSeeOther, "/?err=invalid_auth")
+		return "", 0, ctx.Redirect(http.StatusSeeOther, "/?err=invalid_auth")
 	}
-	return security, nil
+	return first_name,security, nil
 }

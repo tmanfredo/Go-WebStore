@@ -5,7 +5,7 @@ import (
 "go-store/types"
 )
 
-templ Products(security int,products[] types.Product) {
+templ Products(first_name string, security int,products[] types.Product) {
 
 <!DOCTYPE html>
 <html>
@@ -18,7 +18,7 @@ templ Products(security int,products[] types.Product) {
 </head>
 
 <body>
-    @header(security)
+    @header(first_name,security)
 
     <div id="product_container">
 

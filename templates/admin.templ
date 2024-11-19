@@ -7,7 +7,7 @@ import(
 )
 
 
-templ Admin(security int, customers[] types.Customer, orders[] types.Order, numOrders int, products[] types.Product) {
+templ Admin(first_name string, security int, customers[] types.Customer, orders[] types.Order, numOrders int, products[] types.Product) {
 
 <head>
     <title>Admin</title>
@@ -16,7 +16,7 @@ templ Admin(security int, customers[] types.Customer, orders[] types.Order, numO
 </head>
 
 <body>
-    @header(security)
+    @header(first_name, security)
 
     <div id="queries">
         @AllCustomers(customers)

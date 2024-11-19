@@ -5,7 +5,7 @@ import (
 //"go-store/types"
 )
 
-templ InitialPage(security int, err string) {
+templ InitialPage(first_name string,security int, err string) {
 
 <!DOCTYPE html>
 <html>
@@ -20,7 +20,7 @@ templ InitialPage(security int, err string) {
 
 <body>
 	<div id="container">
-		@header(security)
+		@header(first_name, security)
 		<div id="entry">
 		
 			<p style="color:red"> { fmt.Sprintf("%s", err) } </p>

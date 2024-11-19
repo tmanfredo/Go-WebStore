@@ -36,6 +36,8 @@ a:visited {
 	color: black;
 }
 
+
+
 #store_container {
 	display: grid;
 	grid-template-columns: 2;

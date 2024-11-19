@@ -7,33 +7,34 @@ import (
     "go-store/types"
 )
 
-func GetUserSecurity (connection *sql.DB, username string, password string) (int, error){
+func GetUserSecurity (connection *sql.DB, username string, password string) (string, int, error){
     
-    stmt, err := connection.Prepare("SELECT role FROM users WHERE email = ? AND password = ?")
+    stmt, err := connection.Prepare("SELECT first_name, role FROM users WHERE email = ? AND password = ?")
     if err != nil {
         fmt.Sprintf("Error 1: %s", err)
-        return 0, err
+        return "",0, err
     }
     defer stmt.Close()
 
     rows, err := stmt.Query(username, password)
         if err != nil {
             fmt.Printf("error2: %s", err)
-            return 0, err
+            return "", 0, err
         }
     defer rows.Close()
     if rows.Next() {
         var security int
-        err := rows.Scan(&security)
+        var first_name string
+        err := rows.Scan(&first_name, &security)
             if err != nil {
                 fmt.Printf("error3: %s",err)
-                return 0, err
+                return "", 0, err
             }
         
-        return security, nil
+        return first_name, security, nil
     }
    
-    return 0, nil
+    return "", 0, nil
 
 }
 
