@@ -1,6 +1,6 @@
 package templates
 
-templ Base(content templ.Component) {
+templ Base(security int, content templ.Component) {
 <!DOCTYPE html>
 <html>
 
@@ -12,7 +12,7 @@ templ Base(content templ.Component) {
 </head>
 
 <body>
-	@header(1)
+	@header(security)
 	@content
 	@footer()
 

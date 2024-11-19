@@ -7,7 +7,32 @@ import (
     "go-store/types"
 )
 
+func GetUserSecurity (connection *sql.DB, username string, password string) (int, error){
+    stmt, err := connection.Prepare("SELECT role FROM users WHERE email = ? AND password = ?")
+    if err != nil {
+        fmt.Sprintf("Error 1: %s", err)
+        return 0, err
+    }
+    defer stmt.Close()
 
+    rows, err := stmt.Query(username, password)
+        if err != nil {
+            fmt.Printf("error2: %s", err)
+            return 0, err
+        }
+    defer rows.Close()
+    if rows.Next() {
+        var security int
+        err := rows.Scan(&security)
+            if err != nil {
+                fmt.Printf("error3: %s",err)
+                return 0, err
+            }
+        return security, nil
+    }
+    return 0, nil
+
+}
 
 func SearchCustomers (connection *sql.DB, input string, searchTerm string) ([]types.Customer, error){
     

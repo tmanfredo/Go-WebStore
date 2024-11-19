@@ -6,8 +6,9 @@ import (
 	"strconv"
 	"github.com/a-h/templ"
 	"github.com/labstack/echo/v4"
-
-	etag "github.com/pablor21/echo-etag/v4"
+	"github.com/labstack/echo-contrib/session"
+	"github.com/gorilla/sessions"
+	"io/ioutil"
 	"go-store/templates"
 	"go-store/types"
 	"database/sql"
@@ -30,7 +31,7 @@ func connect() *sql.DB {
 func main() {
 	e := echo.New()
 
-	e.Use(etag.Etag())
+	e.Use(session.Middleware(sessions.NewCookieStore([]byte("secret"))))
 
 	e.Static("assets", "./assets")
 
@@ -38,20 +39,67 @@ func main() {
 	* DEFAULT PAGE
 	*/
 	e.GET("/", func(ctx echo.Context) error {
-		return Render(ctx, http.StatusOK, templates.Login())
+		if ctx.QueryParam("err") == "invalid_auth" {
+			return Render(ctx, http.StatusOK, templates.InitialPage(0, "You do not have authorization to view this page"))
+		} 
+		return Render(ctx, http.StatusOK, templates.InitialPage(0, ""))
 	})
 
 	/*
 	* LOGIN PAGE
 	*/
+	e.GET("/login", func(ctx echo.Context) error {
+		connection := connect()
+		security, _ := db.GetUserSecurity(connection, ctx.FormValue("username"), ctx.FormValue("password"))
+		if security == 0 {
+			return Render(ctx, http.StatusOK, templates.InitialPage(0, "Incorrect username or password, either try again or continue as guest."))
+		} else {
+			sess, err := session.Get("session", ctx)
+			if err != nil {
+				return err
+			}
+			
+			var path string
+			if security == 1 {
+				path = "/order_entry"
+			} else if security == 2 {
+				path =  "/products"
+			} else {
+				path = "/store"
+			}
+			fmt.Printf("%s\n", path)
+			sess.Options = &sessions.Options{
+				Path: "/",
+				MaxAge:   86400 * 7,
+				HttpOnly: true,
+			}
+			
+			sess.Values["security"] = security
+			
+			if err := sess.Save(ctx.Request(), ctx.Response()); err != nil {
+				return err
+			}
+			
+			return ctx.Redirect(http.StatusSeeOther, path)
+		}
+	})
+
+	e.GET("/read-session", func(ctx echo.Context) error {
+		sess, err := session.Get("session", ctx)
+		if err != nil {
+			return err
+		}
+		return ctx.String(http.StatusOK, fmt.Sprintf("security=%v\n", sess.Values["security"]))
+	})
 
 	/*
 	*	STORE PAGE
 	*/
 	e.GET("/store", func(ctx echo.Context) error {
 		connection := connect()
-		storeProducts, _ := db.GetAllProducts(connection);
-		return Render(ctx, http.StatusOK, templates.Base(templates.Store(storeProducts)))
+		storeProducts, _ := db.GetAllProducts(connection)
+		security, _ := strconv.Atoi(ctx.QueryParam("security"))
+		return Render(ctx, http.StatusOK, templates.Base(security, templates.Store(storeProducts)))
 	})
 
 	// Handle the form submission and return the purchase confirmation view
@@ -92,7 +140,8 @@ func main() {
 		
 		//add order but only if it isn't already in there (checked inside of AddOrder)
 		db.AddOrder(connection, dbProduct.Id, customer.Id, quantity, ctx.FormValue("donate"), (int64)(timestamp))
-		return Render(ctx, http.StatusOK, templates.Base(templates.PurchaseConfirmation(purchase)))
+		security, _ := strconv.Atoi(ctx.QueryParam("security"))
+		return Render(ctx, http.StatusOK, templates.Base(security,templates.PurchaseConfirmation(purchase)))
 	})
 
 
@@ -105,7 +154,15 @@ func main() {
 		orders, _ := db.GetAllOrders(connection)
 		numOrders, _ := db.NumOfOrders(connection)
 		products, _ := db.GetAllProducts(connection)
-		return Render(ctx, http.StatusOK, templates.Admin(customers, orders, numOrders, products))
+
+		sessVal, _ := http.Get("/read-session")
+		if sessVal == nil {
+			return ctx.Redirect(http.StatusSeeOther, "/?err=invalid_auth")
+		} else {
+			value, _ := ioutil.ReadAll(sessVal.Body)
+			security, _ := strconv.Atoi(string(value))
+			return Render(ctx, http.StatusOK, templates.Admin(security, customers, orders, numOrders, products))
+		}
 	})
 
 
@@ -115,7 +172,8 @@ func main() {
 	e.GET("/order_entry", func(ctx echo.Context) error {
 		connection := connect()
 		storeProducts, _ := db.GetAllProducts(connection);
-		return Render(ctx, http.StatusOK, templates.OrderEntry(storeProducts))
+		security, _ := strconv.Atoi(ctx.QueryParam("security"))
+		return Render(ctx, http.StatusOK, templates.OrderEntry(security,storeProducts))
 	})
 	
 	e.POST("/search_results", func(ctx echo.Context) error {
@@ -158,7 +216,8 @@ func main() {
 	e.GET("/products", func(ctx echo.Context) error {
 		connection := connect()
 		storeProducts, _ := db.GetAllProducts(connection);
-		return Render(ctx, http.StatusOK, templates.Products(storeProducts))
+		security, _ := strconv.Atoi(ctx.QueryParam("security"))
+		return Render(ctx, http.StatusOK, templates.Products(security, storeProducts))
 	})
 
 	e.POST("/product_change", func(ctx echo.Context) error {

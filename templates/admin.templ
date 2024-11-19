@@ -7,15 +7,16 @@ import(
 )
 
 
-templ Admin(customers[] types.Customer, orders[] types.Order, numOrders int, products[] types.Product) {
+templ Admin(security int, customers[] types.Customer, orders[] types.Order, numOrders int, products[] types.Product) {
 
 <head>
-    <title>Database Queries</title>
+    <title>Admin</title>
+    <link rel="icon" type="image/x-icon" href="assets/images/page_icon.ico">
     <link rel="stylesheet" href="assets/styles/styles.css">
 </head>
 
 <body>
-    @header(1)
+    @header(security)
 
     <div id="queries">
         @AllCustomers(customers)
