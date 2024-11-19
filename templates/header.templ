@@ -9,8 +9,9 @@ templ header(authorization int) {
 		<a href="/store">Store</a>
 	}
 	if authorization >= 1 {
-	<a href="/admin">Admin</a>
-	<a href="/order_entry">Order Entry</a>
+		<a href="/admin">Admin</a>
+		<a href="/order_entry">Order Entry</a>
+		<a style="float:right" href="/logout">Logout</a>
 	}
 	if authorization == 2 {
 	<a href="/products">Products</a>

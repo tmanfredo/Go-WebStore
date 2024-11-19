@@ -58,7 +58,7 @@ func main() {
 	})
 
 	/*
-	* LOGIN PAGE
+	* LOGIN PAGE + SESSION TOOLS
 	*/
 	e.GET("/login", func(ctx echo.Context) error {
 		connection := connect()
@@ -111,6 +111,17 @@ func main() {
 		return ctx.String(http.StatusOK, "No session found\n")
 	})
 	
+	e.GET("/logout", func(ctx echo.Context) error {
+		sess, _ := session.Get("session", ctx)
+		sess.Options = &sessions.Options{
+			Path:     "/",
+			MaxAge:   -1,
+			HttpOnly: true,
+		}
+		sess.Values["security"] = 0
+		sess.Save(ctx.Request(), ctx.Response())
+		return ctx.Redirect(http.StatusSeeOther, "/")
+	})
 
 	/*
 	*	STORE PAGE
