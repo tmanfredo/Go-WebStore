@@ -1,12 +1,32 @@
 package templates
 
-templ header() {
+import "fmt"
+
+templ header(first_name string, authorization int) {
 <nav>
-	<a href="#">Home</a>
+	if authorization >= 0{
+	<a href="/">Home</a>
+	}
+	if authorization == 0 || authorization == 2 {
 	<a href="/store">Store</a>
+	}
+	if authorization >= 1 {
 	<a href="/admin">Admin</a>
 	<a href="/order_entry">Order Entry</a>
+	<a style="float:right" href="/logout">Logout</a>
+	<p 
+	style="position: absolute;
+	right: 1em;
+	top:5em;
+	padding: 1em;
+	border: dashed 2px black;
+	background-color: azure;"> 
+	{ fmt.Sprintf("Welcome, %s", first_name) }
+	</p>
+	}
+	if authorization == 2 {
 	<a href="/products">Products</a>
+	}
 </nav>
 <header>
 	<h1>GameHalt</h1>

@@ -49,7 +49,7 @@ func Store(products []types.Product) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><fieldset id=\"info\" class=\"required\"><legend>Personal Info</legend> <label for=\"firstName\">First Name</label> <input type=\"text\" pattern=\"[A-Za-z&#39; ]+\" title=\"Input only letters, spaces, or &#39;\" name=\"first\" required><br><label for=\"lastName\">Last Name</label> <input type=\"text\" pattern=\"[A-Za-z&#39; ]+\" title=\"Input only letters, spaces, or &#39;\" name=\"last\" required><br><label for=\"email\">Email</label> <input type=\"email\" name=\"email\" required><br></fieldset><fieldset class=\"required\" id=\"product\"><legend>Product Info</legend> <label for=\"product\"><select name=\"product\" id=\"productSelection\" required><option value=\"\" style=\"font-weight:bold\" disabled selected>Choose a Product</option> ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <input id=\"productTracking\" type=\"hidden\" name=\"productTracking\" value=\"\"><fieldset id=\"info\" class=\"required\"><legend>Personal Info</legend> <label for=\"firstName\">First Name</label> <input type=\"text\" pattern=\"[A-Za-z&#39; ]+\" title=\"Input only letters, spaces, or &#39;\" name=\"first\" required><br><label for=\"lastName\">Last Name</label> <input type=\"text\" pattern=\"[A-Za-z&#39; ]+\" title=\"Input only letters, spaces, or &#39;\" name=\"last\" required><br><label for=\"email\">Email</label> <input type=\"email\" name=\"email\" required><br></fieldset><fieldset class=\"required\" id=\"product\"><legend>Product Info</legend> <label for=\"product\"><select name=\"product\" id=\"productSelection\" required><option value=\"\" style=\"font-weight:bold\" disabled selected>Choose a Product</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -233,6 +233,29 @@ func PurchaseConfirmation(purchaseInformation types.PurchaseInfo) templ.Componen
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/store.templ`, Line: 83, Col: 86}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<br>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if purchaseInformation.ProductsViewed != "" {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("The products you viewed but did not purchase: %s", purchaseInformation.ProductsViewed))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/store.templ`, Line: 89, Col: 103}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

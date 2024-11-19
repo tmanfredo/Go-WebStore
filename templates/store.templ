@@ -11,14 +11,14 @@ templ Store(products[] types.Product) {
 <div id="store_container">
 	<form id="form" action="/purchase" method="POST">
 		<input type="hidden" name="timestamp" value={ fmt.Sprintf("%d", time.Now().Unix()) } />
-
+		<input id="productTracking" type="hidden" name="productTracking" value="" />
 		<fieldset id="info" class="required">
 			<legend>Personal Info</legend>
 
 			<label for="firstName">First Name</label>
 			<input type="text" pattern="[A-Za-z' ]+" title="Input only letters, spaces, or '" name="first" required><br>
 			<label for="lastName">Last Name</label>
-			<input type="text" pattern="[A-Za-z' ]+" title="Input only letters, spaces, or '" name="last" required><br>
+			<input  type="text" pattern="[A-Za-z' ]+" title="Input only letters, spaces, or '" name="last" required><br>
 			<label for="email">Email</label>
 			<input type="email" name="email" required><br>
 		</fieldset>
@@ -82,6 +82,12 @@ templ PurchaseConfirmation(purchaseInformation types.PurchaseInfo) {
 	} else {
 	<p> { fmt.Sprintf("Total with donation: $%.2f", math.Ceil(purchaseInformation.Total)) } </p>
 	}
-
+	<br>
+	
+	if purchaseInformation.ProductsViewed != "" {
+	<p>
+		{ fmt.Sprintf("The products you viewed but did not purchase: %s", purchaseInformation.ProductsViewed) }
+	</p>
+	}
 </div>
 }

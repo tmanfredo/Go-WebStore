@@ -1,0 +1,28 @@
+#entry {
+    text-align: center;
+    background-color: rgb(201, 229, 254);
+    padding: 1em;
+}
+
+.entry {
+    margin: 2em;
+    padding: 0.25em;
+}
+
+#forgot {
+    font-size: 0.75em;
+}
+
+#loginContainer {
+    width: fit-content;
+    margin: auto;
+    padding: 0.5em;
+}
+
+.button {
+    margin:1em;
+    padding: 1em;
+    font-style: italic;
+    color:white;
+    background-color: rgb(0, 136, 255);
+}

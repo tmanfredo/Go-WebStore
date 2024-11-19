@@ -1,0 +1,61 @@
+package templates
+
+import (
+"fmt"
+//"go-store/types"
+)
+
+templ InitialPage(first_name string,security int, err string) {
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>GameHalt</title>
+	<link rel="stylesheet" href="assets/styles/styles.css">
+	<link rel="stylesheet" href="assets/styles/stylesLogin.css">
+	<link rel="icon" type="image/x-icon" href="assets/images/page_icon.ico">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+
+<body>
+	<div id="container">
+		@header(first_name, security)
+		<div id="entry">
+		
+			<p style="color:red"> { fmt.Sprintf("%s", err) } </p>
+		
+			<p>For users with security access, login here:</p>
+			<form id="form" action="/login" method="GET">
+				<fieldset id="loginContainer" class="entry">
+					<legend>Login</legend>
+
+					<label for="username">Username</label>
+					<input id="username" name="username" type="email"
+						title="Your username is the email used to sign up" required><br>
+
+					<label for="password">Password</label>
+					<input id="password" name="password" type="password" required><br>
+
+					<label for="remember">Remember Me</label>
+					<input id="remember" type="checkbox"><br>
+					<a id="forgot" href="#">Forgot Password</a><br>
+
+					<input class="button" type="submit" id="login" value="Login">
+				</fieldset><br>
+			</form>
+			<em id="or" class="entry">OR</em><br>
+			<button class="button" id="guest" class="entry">Continue as Guest</button>
+		</div>
+
+		@footer()
+	</div>
+	<script>
+		$("#guest").click(function (e) {
+			window.location.href = "store"
+		})
+	</script>
+</body>
+
+</html>
+}

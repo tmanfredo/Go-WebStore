@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"github.com/a-h/templ"
 	"github.com/labstack/echo/v4"
-
-	etag "github.com/pablor21/echo-etag/v4"
+	"github.com/labstack/echo-contrib/session"
+	"github.com/gorilla/sessions"
 	"go-store/templates"
 	"go-store/types"
 	"database/sql"
@@ -30,23 +30,126 @@ func connect() *sql.DB {
 func main() {
 	e := echo.New()
 
-	e.Use(etag.Etag())
+	e.Use(session.Middleware(sessions.NewCookieStore([]byte("secret"))))
 
 	e.Static("assets", "./assets")
 
+	/*
+	* DEFAULT PAGE
+	*/
+	e.GET("/", func(ctx echo.Context) error {
+		sess, err := session.Get("session", ctx)
+		if err != nil {
+			return err // Return an error if session retrieval fails
+		}
+
+		security, ok := sess.Values["security"].(int)
+		first_name, ok := sess.Values["first_name"].(string)
+		if !ok {
+			security = 0 //if session not active
+			first_name = ""
+		}
+
+		if ctx.QueryParam("err") == "invalid_auth" {
+			return Render(ctx, http.StatusOK, templates.InitialPage(first_name,security, "You do not have authorization to view this page"))
+		} else if ctx.QueryParam("err") == "login_required" {
+			return Render(ctx, http.StatusOK, templates.InitialPage(first_name, security, "You need to log in first to view this page"))
+		}
+		return Render(ctx, http.StatusOK, templates.InitialPage(first_name, security, ""))
+	})
+
+	/*
+	* LOGIN PAGE + SESSION TOOLS
+	*/
+	e.GET("/login", func(ctx echo.Context) error {
+		connection := connect()
+		first_name, security, _ := db.GetUserSecurity(connection, ctx.FormValue("username"), ctx.FormValue("password"))
+		if security == 0 {
+			return Render(ctx, http.StatusOK, templates.InitialPage("",security, "Incorrect username or password, either try again or continue as guest."))
+		} else {
+			sess, err := session.Get("session", ctx)
+			if err != nil {
+				return err
+			}
+			
+			var path string
+			if security == 1 {
+				path = "/order_entry"
+			} else if security == 2 {
+				path =  "/products"
+			} else {
+				path = "/store"
+			}
+			sess.Options = &sessions.Options{
+				Path: "/",
+				MaxAge:   86400 * 7,
+				HttpOnly: true,
+			}
+			
+			sess.Values["security"] = security
+			sess.Values["first_name"] = first_name
+			
+			if err := sess.Save(ctx.Request(), ctx.Response()); err != nil {
+				return err
+			}
+			
+			return ctx.Redirect(http.StatusSeeOther, path)
+		}
+	})
+
+	e.GET("/read-session", func(ctx echo.Context) error {
+		sess, err := session.Get("session", ctx)
+		if err != nil {
+			fmt.Printf("Error getting session: %v\n", err)
+			return err
+		}
+	
+		
+		if security, ok := sess.Values["security"]; ok {
+			return ctx.String(http.StatusOK, fmt.Sprintf("security=%v\n", security))
+		}
+	
+		
+		return ctx.String(http.StatusOK, "No session found\n")
+	})
+	
+	e.GET("/logout", func(ctx echo.Context) error {
+		sess, _ := session.Get("session", ctx)
+		sess.Options = &sessions.Options{
+			Path:     "/",
+			MaxAge:   -1,
+			HttpOnly: true,
+		}
+		sess.Values["security"] = 0
+		sess.Values["first_name"] = ""
+		sess.Save(ctx.Request(), ctx.Response())
+		return ctx.Redirect(http.StatusSeeOther, "/")
+	})
 
 	/*
 	*	STORE PAGE
 	*/
 	e.GET("/store", func(ctx echo.Context) error {
 		connection := connect()
-		storeProducts, _ := db.GetAllProducts(connection);
-		return Render(ctx, http.StatusOK, templates.Base(templates.Store(storeProducts)))
+		storeProducts, _ := db.GetAllProducts(connection)
+		sess, err := session.Get("session", ctx)
+		if err != nil {
+			return err // Return an error if session retrieval fails
+		}
+
+		security, ok := sess.Values["security"].(int)
+		first_name, ok := sess.Values["first_name"].(string)
+		if !ok {
+			security = 0 //if session not active
+			first_name = ""
+		}
+		return Render(ctx, http.StatusOK, templates.Base(first_name, security, templates.Store(storeProducts)))
 	})
 
 	// Handle the form submission and return the purchase confirmation view
 	e.POST("/purchase", func(ctx echo.Context) error {
-		connection := connect()
+	connection := connect()
+	
 	customer, _ := db.GetCustomerByEmail(connection, ctx.FormValue("email"))
 	welcome := ""
 	if customer == nil {
@@ -76,11 +179,23 @@ func main() {
 			Tax:      tax,
 			Subtotal: subtotal,
 			Total:    total,
+			ProductsViewed: ctx.FormValue("productTracking"),
 		}
 		
 		//add order but only if it isn't already in there (checked inside of AddOrder)
 		db.AddOrder(connection, dbProduct.Id, customer.Id, quantity, ctx.FormValue("donate"), (int64)(timestamp))
-		return Render(ctx, http.StatusOK, templates.Base(templates.PurchaseConfirmation(purchase)))
+		sess, err := session.Get("session", ctx)
+		if err != nil {
+			return err // Return an error if session retrieval fails
+		}
+
+		security, ok := sess.Values["security"].(int)
+		first_name, ok := sess.Values["first_name"].(string)
+		if !ok {
+			security = 0 //if session not active
+			first_name = ""
+		}
+		return Render(ctx, http.StatusOK, templates.Base(first_name,security,templates.PurchaseConfirmation(purchase)))
 	})
 
 
@@ -93,7 +208,13 @@ func main() {
 		orders, _ := db.GetAllOrders(connection)
 		numOrders, _ := db.NumOfOrders(connection)
 		products, _ := db.GetAllProducts(connection)
-		return Render(ctx, http.StatusOK, templates.Admin(customers, orders, numOrders, products))
+	
+		first_name, security, redirect := ClearanceCheck(ctx, 1)
+		
+		if redirect != nil {
+			return redirect
+		} 
+		return Render(ctx, http.StatusOK, templates.Admin(first_name, security, customers, orders, numOrders, products))
 	})
 
 
@@ -101,10 +222,19 @@ func main() {
 	*	ORDER ENTRY
 	*/
 	e.GET("/order_entry", func(ctx echo.Context) error {
+		// Connect to your database and get products
 		connection := connect()
-		storeProducts, _ := db.GetAllProducts(connection);
-		return Render(ctx, http.StatusOK, templates.OrderEntry(storeProducts))
+		storeProducts, _ := db.GetAllProducts(connection)
+	
+		first_name, security, redirect := ClearanceCheck(ctx, 1)
+		if redirect != nil {
+			return redirect
+		} 
+	
+		// Render the order entry page with the security level and products
+		return Render(ctx, http.StatusOK, templates.OrderEntry(first_name, security, storeProducts))
 	})
+	
 	
 	e.POST("/search_results", func(ctx echo.Context) error {
 		connection := connect()
@@ -146,7 +276,13 @@ func main() {
 	e.GET("/products", func(ctx echo.Context) error {
 		connection := connect()
 		storeProducts, _ := db.GetAllProducts(connection);
-		return Render(ctx, http.StatusOK, templates.Products(storeProducts))
+
+		first_name, security, redirect := ClearanceCheck(ctx, 2)
+		if redirect != nil {
+			return redirect
+		} 
+		return Render(ctx, http.StatusOK, templates.Products(first_name,security, storeProducts))
+		
 	})
 
 	e.POST("/product_change", func(ctx echo.Context) error {
@@ -232,4 +368,22 @@ func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	}
 
 	return ctx.HTML(statusCode, buf.String())
+}
+
+func ClearanceCheck(ctx echo.Context, threshold int) (string, int, error){
+	sess, err := session.Get("session", ctx)
+	if err != nil {
+		return "",0, err // Return an error if session retrieval fails
+	}
+
+	// Check if session contains the 'security' value
+	security, ok := sess.Values["security"].(int)
+	first_name, ok := sess.Values["first_name"].(string)
+	if !ok {
+		return "", 0, ctx.Redirect(http.StatusSeeOther, "/?err=login_required")
+	} else if security < threshold {
+		// Redirect to an error page if no valid security value found
+		return "", 0, ctx.Redirect(http.StatusSeeOther, "/?err=invalid_auth")
+	}
+	return first_name,security, nil
 }

@@ -1,6 +1,6 @@
 package templates
 
-templ Base(content templ.Component) {
+templ Base(first_name string, security int, content templ.Component) {
 <!DOCTYPE html>
 <html>
 
@@ -8,29 +8,32 @@ templ Base(content templ.Component) {
 	<title>GameHalt</title>
 	<link rel="stylesheet" href="assets/styles/styles.css">
 	<link rel="icon" type="image/x-icon" href="assets/images/page_icon.ico">
-	<script src="https://unpkg.com/htmx.org@2.0.3"
-		integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
-		crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 
 <body>
-	@header()
+	@header(first_name, security)
 	@content
 	@footer()
- 
+
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
+
+			//tracking products looked at
+			let productTracking = [];
+
 			//listener for dropdown
 			const dropdown = document.getElementById("productSelection");
 			dropdown.addEventListener('change', function () {
 				//grab the dropdown menu element
 				const selectedOption = dropdown.options[dropdown.selectedIndex];
+				if (!productTracking.includes(selectedOption.value)) productTracking.push(selectedOption.value);
 
 				//set the image for the active product
 				let imagePath = selectedOption.getAttribute('data-image');
 				const image = document.getElementById("image");
 				image.setAttribute("src", imagePath);
-				
+
 				//get the amount of the product in stock
 				const instock = document.getElementById("instock");
 				let instockValue = selectedOption.getAttribute('data-stock');
@@ -40,7 +43,7 @@ templ Base(content templ.Component) {
 				let quantity = document.getElementById("quantity");
 				let purchase = document.getElementById("purchase");
 
-				if (instockValue == 0){
+				if (instockValue == 0) {
 					quantity.disabled = true;
 					purchase.disabled = true;
 				}
@@ -64,6 +67,16 @@ templ Base(content templ.Component) {
 					instock.innerHTML = "";
 				}
 			});
+
+			$("#form").submit(function (e) {
+				const selectedOption = dropdown.options[dropdown.selectedIndex];
+				const index = productTracking.indexOf(selectedOption.value);
+				if (index > -1) productTracking.splice(index, 1);
+				let newCookieValue = productTracking.join(", ");
+				document.cookie = "productViewed=" + newCookieValue + "; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT;";
+				document.getElementById("productTracking").value = newCookieValue;
+			})
+
 		});
 	</script>
 </body>

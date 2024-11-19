@@ -6,7 +6,7 @@ import (
 "time"
 )
 
-templ OrderEntry(products[] types.Product) {
+templ OrderEntry(first_name string,security int, products[] types.Product) {
 
 <!DOCTYPE html>
 <html>
@@ -19,7 +19,7 @@ templ OrderEntry(products[] types.Product) {
 </head>
 
 <body>
-	@header()
+	@header(first_name,security)
 	<div id="store_container">
 		<form id="form" action="/order_placed" method="POST">
 			<input id="timestamp" type="hidden" name="timestamp" value={fmt.Sprintf("%d", time.Now().Unix())} />
