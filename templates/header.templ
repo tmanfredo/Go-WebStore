@@ -5,7 +5,7 @@ import "fmt"
 templ header(first_name string, authorization int) {
 <nav>
 	if authorization >= 0{
-	<a href="#">Home</a>
+	<a href="/">Home</a>
 	}
 	if authorization == 0 || authorization == 2 {
 	<a href="/store">Store</a>

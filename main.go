@@ -43,7 +43,6 @@ func main() {
 			return err // Return an error if session retrieval fails
 		}
 
-		
 		security, ok := sess.Values["security"].(int)
 		first_name, ok := sess.Values["first_name"].(string)
 		if !ok {
@@ -133,10 +132,17 @@ func main() {
 	e.GET("/store", func(ctx echo.Context) error {
 		connection := connect()
 		storeProducts, _ := db.GetAllProducts(connection)
-		first_name, security, redirect := ClearanceCheck(ctx, 0)
-		if redirect != nil {
-			return redirect
-		} 
+		sess, err := session.Get("session", ctx)
+		if err != nil {
+			return err // Return an error if session retrieval fails
+		}
+
+		security, ok := sess.Values["security"].(int)
+		first_name, ok := sess.Values["first_name"].(string)
+		if !ok {
+			security = 0 //if session not active
+			first_name = ""
+		}
 		return Render(ctx, http.StatusOK, templates.Base(first_name, security, templates.Store(storeProducts)))
 	})
 
@@ -178,10 +184,17 @@ func main() {
 		
 		//add order but only if it isn't already in there (checked inside of AddOrder)
 		db.AddOrder(connection, dbProduct.Id, customer.Id, quantity, ctx.FormValue("donate"), (int64)(timestamp))
-		first_name, security, redirect := ClearanceCheck(ctx, 0)
-		if redirect != nil {
-			return redirect
-		} 
+		sess, err := session.Get("session", ctx)
+		if err != nil {
+			return err // Return an error if session retrieval fails
+		}
+
+		security, ok := sess.Values["security"].(int)
+		first_name, ok := sess.Values["first_name"].(string)
+		if !ok {
+			security = 0 //if session not active
+			first_name = ""
+		}
 		return Render(ctx, http.StatusOK, templates.Base(first_name,security,templates.PurchaseConfirmation(purchase)))
 	})
 

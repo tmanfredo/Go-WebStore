@@ -52,15 +52,7 @@ templ InitialPage(first_name string,security int, err string) {
 	</div>
 	<script>
 		$("#guest").click(function (e) {
-			let xhttp = new XMLHttpRequest();
-			xhttp.onreadystatechange = function () {
-				if (this.readyState == 4 && this.status == 200) {
-					document.getElementById("container").innerHTML = this.responseText;
-				}
-
-			};
-			xhttp.open("GET", "store?security=0", true);
-			xhttp.send();
+			window.location.href = "store"
 		})
 	</script>
 </body>

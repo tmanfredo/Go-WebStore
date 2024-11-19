@@ -36,7 +36,7 @@ func header(first_name string, authorization int) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if authorization >= 0 {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a href=\"#\">Home</a> ")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a href=\"/\">Home</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
