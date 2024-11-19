@@ -8,7 +8,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/gorilla/sessions"
-	"io/ioutil"
 	"go-store/templates"
 	"go-store/types"
 	"database/sql"
@@ -41,7 +40,9 @@ func main() {
 	e.GET("/", func(ctx echo.Context) error {
 		if ctx.QueryParam("err") == "invalid_auth" {
 			return Render(ctx, http.StatusOK, templates.InitialPage(0, "You do not have authorization to view this page"))
-		} 
+		} else if ctx.QueryParam("err") == "login_required" {
+			return Render(ctx, http.StatusOK, templates.InitialPage(0, "You need to log in first to view this page"))
+		}
 		return Render(ctx, http.StatusOK, templates.InitialPage(0, ""))
 	})
 
@@ -87,10 +88,19 @@ func main() {
 	e.GET("/read-session", func(ctx echo.Context) error {
 		sess, err := session.Get("session", ctx)
 		if err != nil {
+			fmt.Printf("Error getting session: %v\n", err)
 			return err
 		}
-		return ctx.String(http.StatusOK, fmt.Sprintf("security=%v\n", sess.Values["security"]))
+	
+		
+		if security, ok := sess.Values["security"]; ok {
+			return ctx.String(http.StatusOK, fmt.Sprintf("security=%v\n", security))
+		}
+	
+		
+		return ctx.String(http.StatusOK, "No session found\n")
 	})
+	
 
 	/*
 	*	STORE PAGE
@@ -154,15 +164,22 @@ func main() {
 		orders, _ := db.GetAllOrders(connection)
 		numOrders, _ := db.NumOfOrders(connection)
 		products, _ := db.GetAllProducts(connection)
-
-		sessVal, _ := http.Get("/read-session")
-		if sessVal == nil {
-			return ctx.Redirect(http.StatusSeeOther, "/?err=invalid_auth")
-		} else {
-			value, _ := ioutil.ReadAll(sessVal.Body)
-			security, _ := strconv.Atoi(string(value))
-			return Render(ctx, http.StatusOK, templates.Admin(security, customers, orders, numOrders, products))
+	
+		// Retrieve the session
+		sess, err := session.Get("session", ctx)
+		if err != nil {
+			return err // Return an error if session retrieval fails
 		}
+	
+		// Check if session contains a valid 'security' value
+		security, ok := sess.Values["security"].(int)
+		if !ok {
+			return ctx.Redirect(http.StatusSeeOther, "/?err=login_required")
+		} else if security < 1 {
+			// Redirect to an error page if no valid security value found
+			return ctx.Redirect(http.StatusSeeOther, "/?err=invalid_auth")
+		}
+		return Render(ctx, http.StatusOK, templates.Admin(security, customers, orders, numOrders, products))
 	})
 
 
@@ -170,11 +187,29 @@ func main() {
 	*	ORDER ENTRY
 	*/
 	e.GET("/order_entry", func(ctx echo.Context) error {
+		// Connect to your database and get products
 		connection := connect()
-		storeProducts, _ := db.GetAllProducts(connection);
-		security, _ := strconv.Atoi(ctx.QueryParam("security"))
-		return Render(ctx, http.StatusOK, templates.OrderEntry(security,storeProducts))
+		storeProducts, _ := db.GetAllProducts(connection)
+	
+		// Retrieve the session
+		sess, err := session.Get("session", ctx)
+		if err != nil {
+			return err // Return an error if session retrieval fails
+		}
+	
+		// Check if session contains a valid 'security' value
+		security, ok := sess.Values["security"].(int)
+		if !ok {
+			return ctx.Redirect(http.StatusSeeOther, "/?err=login_required")
+		} else if security < 1 {
+			// Redirect to an error page if no valid security value found
+			return ctx.Redirect(http.StatusSeeOther, "/?err=invalid_auth")
+		}
+	
+		// Render the order entry page with the security level and products
+		return Render(ctx, http.StatusOK, templates.OrderEntry(security, storeProducts))
 	})
+	
 	
 	e.POST("/search_results", func(ctx echo.Context) error {
 		connection := connect()
@@ -216,7 +251,20 @@ func main() {
 	e.GET("/products", func(ctx echo.Context) error {
 		connection := connect()
 		storeProducts, _ := db.GetAllProducts(connection);
-		security, _ := strconv.Atoi(ctx.QueryParam("security"))
+		// Retrieve the session
+		sess, err := session.Get("session", ctx)
+		if err != nil {
+			return err // Return an error if session retrieval fails
+		}
+	
+		// Check if session contains the 'security' value
+		security, ok := sess.Values["security"].(int)
+		if !ok {
+			return ctx.Redirect(http.StatusSeeOther, "/?err=login_required")
+		} else if security < 2 {
+			// Redirect to an error page if no valid security value found
+			return ctx.Redirect(http.StatusSeeOther, "/?err=invalid_auth")
+		}
 		return Render(ctx, http.StatusOK, templates.Products(security, storeProducts))
 	})
 
