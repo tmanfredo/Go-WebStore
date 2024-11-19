@@ -165,20 +165,10 @@ func main() {
 		numOrders, _ := db.NumOfOrders(connection)
 		products, _ := db.GetAllProducts(connection)
 	
-		// Retrieve the session
-		sess, err := session.Get("session", ctx)
-		if err != nil {
-			return err // Return an error if session retrieval fails
-		}
-	
-		// Check if session contains a valid 'security' value
-		security, ok := sess.Values["security"].(int)
-		if !ok {
-			return ctx.Redirect(http.StatusSeeOther, "/?err=login_required")
-		} else if security < 1 {
-			// Redirect to an error page if no valid security value found
-			return ctx.Redirect(http.StatusSeeOther, "/?err=invalid_auth")
-		}
+		security, redirect := ClearanceCheck(ctx, 1)
+		if redirect != nil {
+			return redirect
+		} 
 		return Render(ctx, http.StatusOK, templates.Admin(security, customers, orders, numOrders, products))
 	})
 
@@ -191,20 +181,10 @@ func main() {
 		connection := connect()
 		storeProducts, _ := db.GetAllProducts(connection)
 	
-		// Retrieve the session
-		sess, err := session.Get("session", ctx)
-		if err != nil {
-			return err // Return an error if session retrieval fails
-		}
-	
-		// Check if session contains a valid 'security' value
-		security, ok := sess.Values["security"].(int)
-		if !ok {
-			return ctx.Redirect(http.StatusSeeOther, "/?err=login_required")
-		} else if security < 1 {
-			// Redirect to an error page if no valid security value found
-			return ctx.Redirect(http.StatusSeeOther, "/?err=invalid_auth")
-		}
+		security, redirect := ClearanceCheck(ctx, 1)
+		if redirect != nil {
+			return redirect
+		} 
 	
 		// Render the order entry page with the security level and products
 		return Render(ctx, http.StatusOK, templates.OrderEntry(security, storeProducts))
@@ -252,7 +232,7 @@ func main() {
 		connection := connect()
 		storeProducts, _ := db.GetAllProducts(connection);
 		// Retrieve the session
-		sess, err := session.Get("session", ctx)
+		/* sess, err := session.Get("session", ctx)
 		if err != nil {
 			return err // Return an error if session retrieval fails
 		}
@@ -264,8 +244,14 @@ func main() {
 		} else if security < 2 {
 			// Redirect to an error page if no valid security value found
 			return ctx.Redirect(http.StatusSeeOther, "/?err=invalid_auth")
-		}
+		} */
+
+		security, redirect := ClearanceCheck(ctx, 2)
+		if redirect != nil {
+			return redirect
+		} 
 		return Render(ctx, http.StatusOK, templates.Products(security, storeProducts))
+		
 	})
 
 	e.POST("/product_change", func(ctx echo.Context) error {
@@ -351,4 +337,21 @@ func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	}
 
 	return ctx.HTML(statusCode, buf.String())
+}
+
+func ClearanceCheck(ctx echo.Context, threshold int) (int, error){
+	sess, err := session.Get("session", ctx)
+	if err != nil {
+		return -1, err // Return an error if session retrieval fails
+	}
+
+	// Check if session contains the 'security' value
+	security, ok := sess.Values["security"].(int)
+	if !ok {
+		return -1, ctx.Redirect(http.StatusSeeOther, "/?err=login_required")
+	} else if security < threshold {
+		// Redirect to an error page if no valid security value found
+		return -1, ctx.Redirect(http.StatusSeeOther, "/?err=invalid_auth")
+	}
+	return security, nil
 }
